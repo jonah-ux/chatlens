@@ -33,3 +33,11 @@ jobs:
           chatlens --version
           chatlens --help
           python demos/demo.py
+      - name: Verify fresh sdist installation
+        shell: bash
+        run: |
+          python -m venv "$RUNNER_TEMP/chatlens-sdist"
+          "$RUNNER_TEMP/chatlens-sdist/bin/python" -m pip install --no-deps dist/chatlens-*.tar.gz
+          "$RUNNER_TEMP/chatlens-sdist/bin/chatlens" --version
+          "$RUNNER_TEMP/chatlens-sdist/bin/chatlens" --help
+          "$RUNNER_TEMP/chatlens-sdist/bin/python" demos/demo.py
