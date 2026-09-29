@@ -5,6 +5,7 @@ import sqlite3
 import unittest
 import os
 import stat
+import shlex
 from contextlib import redirect_stdout, redirect_stderr, closing
 from io import StringIO
 from unittest import mock
@@ -21,6 +22,15 @@ def invoke(*args):
 
 
 class EvidenceTest(unittest.TestCase):
+    def test_hermes_card_resume_uses_the_native_session_identity(self):
+        with fixture_home() as (root, _, _):
+            status, card, _ = invoke("card", "hermes:hermes:hermes-fixture", "--json")
+            self.assertEqual(status, 0)
+            argv = shlex.split(card["continue"])
+            self.assertEqual(argv[:2], ["hermes", "--resume"])
+            with closing(sqlite3.connect(root / ".hermes/state.db")) as con:
+                self.assertEqual(con.execute("SELECT count(*) FROM sessions WHERE id=?", (argv[2],)).fetchone()[0], 1)
+
     def test_private_cache_modes_and_unsafe_existing_directory_refusal(self):
         with fixture_home() as (root, _, _):
             new_home = root / "new-private-cache"

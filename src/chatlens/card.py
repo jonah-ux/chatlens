@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from collections import Counter
+import shlex
 
 from .facts import extract
 from .model import ASSISTANT, USER, fmt_ts
@@ -10,9 +11,20 @@ SCHEMA = "chatlens-card/v1"
 
 
 def continue_command(source: str, session_id: str) -> str:
-    return {"codex": f"codex resume {session_id}",
-            "claude": f"claude --resume {session_id}",
-            "hermes": f"hermes --resume {session_id}"}.get(source, "")
+    if source == "codex":
+        return shlex.join(["codex", "resume", session_id])
+    if source == "claude":
+        return shlex.join(["claude", "--resume", session_id])
+    if source == "hermes":
+        label, separator, native_id = session_id.partition(":")
+        if not separator:
+            return shlex.join(["hermes", "--resume", session_id])
+        if label == "hermes":
+            return shlex.join(["hermes", "--resume", native_id])
+        if label.startswith("profile-"):
+            return shlex.join(["hermes", "--profile", label[8:], "--resume", native_id])
+        # A custom home label does not establish the native CLI's current profile configuration.
+    return ""
 
 
 def build(source: str, thread_id: str, title: str, events: list, node: str = "local") -> dict:
