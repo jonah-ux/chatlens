@@ -1,0 +1,40 @@
+{
+  "version": "data-truth-change/v1",
+  "canonical_project": "jonah-ux/chatlens",
+  "data_paths": [
+    {
+      "path": "demos/demo.py",
+      "sha256": "80e8802a85b18c7de782dfe72a6d2506dc6d1a314931a738bd8d23167437980b"
+    },
+    {
+      "path": "src/chatlens/cli.py",
+      "sha256": "a19a5c8d3d7515fa14ef76f21e6f87ac087579c6b02148cc6ae4a38080e03004"
+    },
+    {
+      "path": "tests/test_cli.py",
+      "sha256": "f50ec8063801adde5c9789921a062168fedffd3830b4ba0cc6146e0e15502c79"
+    },
+    {
+      "path": "tests/test_evidence.py",
+      "sha256": "51c96f37c39fe049f97ede8bc5de466ae18d5ab72a4b20212bc6d09cf5b21df4"
+    }
+  ],
+  "facts": [
+    "chatlens.public_cli.source_contract"
+  ],
+  "why_trace": {
+    "verdict": "GENUINE_BUG",
+    "root_cause": "The initial standalone caller dropped native parse errors, retained stale indexed sessions, and created a readable transcript cache. Source integration now reports partial evidence, replaces selected inventories, and enforces private cache permissions.",
+    "evidence": [
+      "tests/test_evidence.py exercises corrupt inventories, partial records, stale cache removal, source immutability, read bounds, native session identity, and private cache/symlink refusal",
+      "tests/test_cli.py exercises synthetic Codex, Claude Code, and Hermes stores",
+      "Installed wheel and sdist synthetic demos passed in fresh environments"
+    ]
+  },
+  "documentation": [
+    "README.md",
+    "docs/releasing.md",
+    "PROVENANCE.md"
+  ],
+  "source_commit": "e7a0ced296c2c33eb6efc572db91393947774d38"
+}
