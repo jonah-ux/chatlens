@@ -1,0 +1,2 @@
+{"type":"user","timestamp":"2026-01-01T00:00:00Z","message":{"content":"find the release parser"}}
+{"type":"assistant","timestamp":"2026-01-01T00:00:01Z","message":{"model":"fixture","content":[{"type":"text","text":"Claude fixture reply."}]}}

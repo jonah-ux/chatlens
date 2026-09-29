@@ -1,0 +1,4 @@
+{"timestamp":"2026-01-01T00:00:00Z","type":"session_meta","payload":{"id":"01fixture-1111-7000-8000-000000000001","source":"vscode"}}
+{"timestamp":"2026-01-01T00:00:01Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"find the release parser"}],"internal_chat_message_metadata_passthrough":{"content_item_kinds":["user.text"]}}}
+{"timestamp":"2026-01-01T00:00:02Z","type":"response_item","payload":{"type":"custom_tool_call","name":"terminal","call_id":"call-1","input":"python -m unittest"}}
+{"timestamp":"2026-01-01T00:00:03Z","type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"output_text","text":"The parser is ready. Tests pass."}]}}
