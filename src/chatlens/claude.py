@@ -159,8 +159,8 @@ def events(path: str, errors: list | None = None):
             try:
                 rec = json.loads(line)
             except ValueError:
-                # A final line with no newline is a chat still being written, not damage: skip it quietly.
-                bad += line.strip() != "" and line.endswith("\n")
+                # A live writer may leave an incomplete final record; it is still partial evidence.
+                bad += bool(line.strip())
                 continue
             if not isinstance(rec, dict):
                 bad += 1

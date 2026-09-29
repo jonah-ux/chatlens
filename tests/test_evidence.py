@@ -79,6 +79,17 @@ class EvidenceTest(unittest.TestCase):
             self.assertTrue(search["matches"])
             self.assertEqual(search["index"]["sources"]["codex"]["coverage"]["status"], "partial")
 
+    def test_unterminated_writer_record_is_partial_evidence(self):
+        with fixture_home() as (root, tid, cid):
+            paths = [("codex:" + tid, next((root / ".codex/sessions").rglob("*.jsonl"))),
+                     ("claude:" + cid, root / ".claude/projects/demo" / (cid + ".jsonl"))]
+            for reference, path in paths:
+                with path.open("a") as out:
+                    out.write('{"incomplete":')
+                status, card, _ = invoke("card", reference, "--json")
+                self.assertEqual(status, 3)
+                self.assertEqual(card["input"]["status"], "partial")
+
     def test_refresh_removes_deleted_and_excluded_sessions(self):
         with fixture_home() as (root, tid, _):
             invoke("index", "--json")
