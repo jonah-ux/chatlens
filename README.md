@@ -28,7 +28,7 @@ chatlens --help
 
 Alternatively, install a wheel from [GitHub Releases](https://github.com/jonah-ux/chatlens/releases). Python must provide SQLite FTS5. No API key, model account, or daemon is needed. Windows support has not been verified; CI covers Linux and macOS.
 
-## First useful result
+## Quick start
 
 ```console
 chatlens list --json --limit 10
@@ -109,4 +109,4 @@ python -m pip install build
 python -m build --sdist --wheel
 ```
 
-Tests use disposable synthetic stores. Please include a small, sanitized fixture for a new format or bug. See [contributing](CONTRIBUTING.md), [security](SECURITY.md), [release process](docs/releasing.md), and [source provenance](PROVENANCE.md).
+Tests use disposable synthetic stores. Please include a small, sanitized fixture for a new format or bug. See the [CLI reference](docs/cli.md), [contributing](CONTRIBUTING.md), [security](SECURITY.md), [release process](docs/releasing.md), and [source provenance](PROVENANCE.md).
