@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chatlens"
+version = "0.1.0"
+description = "Offline reader, renderer, and SQLite search index for Codex, Claude Code, and Hermes transcripts"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+authors = [{name = "Jonah Helland"}]
+keywords = ["codex", "claude-code", "hermes", "transcripts", "sqlite", "offline"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Utilities",
+]
+dependencies = []
+
+[project.scripts]
+chatlens = "chatlens.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/jonah-ux/chatlens"
+Repository = "https://github.com/jonah-ux/chatlens"
+Issues = "https://github.com/jonah-ux/chatlens/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["chatlens_cli"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
