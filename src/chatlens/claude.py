@@ -1,6 +1,6 @@
 """Claude Code adapter: ~/.claude/projects/<encoded-cwd>/<sessionId>.jsonl (+ ~/.claude-*/projects).
 
-Facts verified on mac-studio 2026-09-24 (CLI 2.1.24x-2.1.26x):
+Supported Claude Code JSONL shapes:
 - Subagent transcripts live at <proj>/<sessionId>/subagents/agent-<id>.jsonl (+ .meta.json);
   the path is the reliable main-vs-subagent signal.
 - One API message is split over several assistant rows sharing message.id; each row holds one block.
@@ -36,13 +36,20 @@ def _first_prompt(path: str, limit_lines: int = 400) -> tuple[str, str, str]:
     """(title, cwd, entrypoint) from the head of a transcript, cheaply."""
     cwd = entry = ""
     try:
+        if os.path.getsize(path) > 67_108_864:
+            return "[unreadable: transcript exceeds 64 MiB]", "", ""
         fh = open(path, errors="replace")
     except OSError as exc:              # one unreadable transcript must not break list/index/report
         return f"[unreadable: {exc.strerror or exc}]", "", ""
     with fh:
-        for i, line in enumerate(fh):
-            if i > limit_lines:
+        used = 0
+        for _ in range(limit_lines):
+            line = fh.readline(1_000_001)
+            if not line:
                 break
+            used += len(line)
+            if len(line) > 1_000_000 or used > 1_000_000:
+                return "[unreadable: title scan exceeds 1,000,000 characters]", cwd, entry
             try:
                 rec = json.loads(line)
             except ValueError:
@@ -103,7 +110,10 @@ def list_threads(node: str, with_titles: bool = True, include_subagents: bool = 
                             errors.append({"source": "claude", "status": "partial",
                                            "error": f"transcript vanished before stat: {entry.path}: {exc}"[:300]})
                         continue          # vanished between scandir and stat
-                    threads.append(_thread(node, entry.path, "human", with_titles, st))
+                    row = _thread(node, entry.path, "human", with_titles, st)
+                    if errors is not None and row.title.startswith("[unreadable:"):
+                        errors.append({"source": "claude", "status": "partial", "error": row.title})
+                    threads.append(row)
                 elif include_subagents and entry.is_dir():
                     sub = os.path.join(entry.path, "subagents")
                     if os.path.isdir(sub):

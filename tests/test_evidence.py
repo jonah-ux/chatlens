@@ -3,6 +3,8 @@ import hashlib
 import json
 import sqlite3
 import unittest
+import os
+import stat
 from contextlib import redirect_stdout, redirect_stderr, closing
 from io import StringIO
 from unittest import mock
@@ -19,6 +21,39 @@ def invoke(*args):
 
 
 class EvidenceTest(unittest.TestCase):
+    def test_private_cache_modes_and_unsafe_existing_directory_refusal(self):
+        with fixture_home() as (root, _, _):
+            new_home = root / "new-private-cache"
+            with mock.patch.dict(os.environ, {"CHATLENS_HOME": str(new_home)}):
+                status, _, _ = invoke("index", "--json")
+                self.assertEqual(status, 0)
+                self.assertEqual(stat.S_IMODE(new_home.stat().st_mode), 0o700)
+                self.assertEqual(stat.S_IMODE((new_home / "index.db").stat().st_mode), 0o600)
+            public_dir = root / "shared"
+            public_dir.mkdir(mode=0o755)
+            with mock.patch.dict(os.environ, {"CHATLENS_HOME": str(public_dir)}):
+                status, result, _ = invoke("index", "--json")
+                self.assertEqual(status, 3)
+                self.assertIn("must be private", result["error"])
+            self.assertFalse((public_dir / "index.db").exists())
+
+    def test_cache_symlink_cannot_rewrite_a_source_database(self):
+        with fixture_home() as (root, _, _):
+            source = root / ".codex/state_5.sqlite"
+            before = hashlib.sha256(source.read_bytes()).digest()
+            (root / "state/index.db").symlink_to(source)
+            status, _, _ = invoke("index", "--json")
+            self.assertEqual(status, 3)
+            self.assertEqual(before, hashlib.sha256(source.read_bytes()).digest())
+
+    def test_claude_title_scan_is_bounded_and_reports_partial(self):
+        with fixture_home() as (root, _, cid):
+            path = root / ".claude/projects/demo" / (cid + ".jsonl")
+            path.write_text(json.dumps({"type": "user", "message": {"content": "x" * 1_000_001}}))
+            status, result, _ = invoke("list", "--source", "claude", "--json")
+            self.assertEqual(status, 3)
+            self.assertEqual(result["coverage"]["sources"]["claude"]["status"], "partial")
+
     def test_corrupt_inventory_is_partial_and_never_a_fake_thread(self):
         with fixture_home() as (root, _, _):
             (root / ".hermes/state.db").write_bytes(b"not a database")

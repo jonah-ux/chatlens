@@ -10,6 +10,7 @@ import itertools
 import json
 import os
 import sqlite3
+import stat
 import sys
 import time
 from dataclasses import replace
@@ -204,8 +205,16 @@ def cmd_read(args) -> int:
 
 
 def _db() -> sqlite3.Connection:
-    path = (_home() / "index.db").resolve()
-    path.parent.mkdir(parents=True, exist_ok=True)
+    path = _home().resolve() / "index.db"
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if stat.S_IMODE(path.parent.stat().st_mode) & 0o077:
+        raise OSError("CHATLENS_HOME must be private (mode 700); choose a private directory or fix its permissions")
+    fd = os.open(path, os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0), 0o600)
+    try:
+        if stat.S_IMODE(os.fstat(fd).st_mode) & 0o077:
+            raise OSError("index.db must be private (mode 600); fix its permissions before indexing")
+    finally:
+        os.close(fd)
     con = sqlite3.connect(path)
     con.execute("PRAGMA journal_mode=WAL")
     con.execute("CREATE TABLE IF NOT EXISTS threads (key TEXT PRIMARY KEY, source TEXT, id TEXT, node TEXT, path TEXT, title TEXT, origin TEXT, updated REAL, body TEXT)")
@@ -269,7 +278,7 @@ def cmd_index(args) -> int:
 
 
 def cmd_search(args) -> int:
-    path = _home() / "index.db"
+    path = (_home() / "index.db").resolve()
     if not path.is_file():
         _error("no index exists; run chatlens index first", 3)
     con = sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)
@@ -354,11 +363,13 @@ def main(argv: list[str] | None = None) -> int:
         if getattr(args, "json", False):
             _json({"schema": "chatlens-error/v1", "status": "error", "error": str(exc), "exit_code": exc.code})
         return exc.code
-    except (OSError, sqlite3.Error, ValueError, TypeError) as exc:
+    except (OSError, sqlite3.Error, ValueError, TypeError, AttributeError, KeyError) as exc:
         if getattr(args, "json", False):
             _json({"schema": "chatlens-error/v1", "status": "error", "error": str(exc)})
         print(f"chatlens: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 3
+    finally:
+        codex.close_state()
 
 
 if __name__ == "__main__":

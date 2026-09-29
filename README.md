@@ -96,6 +96,8 @@ The package makes no network or model calls. The parsers, renderer, and work-car
 
 Your transcripts may contain private code, credentials, or personal information. Chatlens does **not** redact them. Its index contains excerpts; protect the index and stdout accordingly. An agent receiving the output receives that content even though Chatlens itself has no network path.
 
+New cache directories and databases use owner-only permissions (700 and 600). Indexing refuses an existing directory or database that is readable by other local users. Choose a private `CHATLENS_HOME` before indexing. Claude title discovery also caps its head scan at 1,000,000 characters.
+
 Reads are bounded to 64 MiB for each JSONL file, 200,000 events, and 1,000,000 retained text characters. Cards and rendered outputs can contain less text. Limits and malformed records are reported as partial evidence. Missing native reasoning stays missing; encrypted Codex reasoning is not decrypted. Token budgets are character-based estimates, not model token counts.
 
 ## Contribute

@@ -8,6 +8,6 @@ Thanks for helping improve ChatLens. Keep this project local-first and provider-
 - Readers must open source SQLite stores read-only and never mutate native transcripts.
 - Preserve ambiguity refusal and claim-versus-verification semantics.
 - Run `python -m unittest discover -s tests -v` and `python -m compileall -q src tests` before proposing changes.
-- Keep the version in `pyproject.toml` and `src/chatlens/__init__.py` consistent. Root owns release tags and publication.
+- Keep the version in `pyproject.toml` and `src/chatlens/__init__.py` consistent. Maintainers own release tags and publication.
 
-See [Security](SECURITY.md), [agent usage](docs/agents.md), and [releasing](docs/releasing.md).
+See [Security](SECURITY.md), [agent usage](README.md#agent-interface), and [releasing](docs/releasing.md).

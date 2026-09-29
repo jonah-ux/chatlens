@@ -26,7 +26,7 @@ def fixture_home():
         codex_home.joinpath("sessions/2026/01/01").mkdir(parents=True)
         claude_home.mkdir(parents=True)
         hermes_home.mkdir(parents=True)
-        state_home.mkdir()
+        state_home.mkdir(mode=0o700)
         tid = "01fixture-1111-7000-8000-000000000001"
         rollout = codex_home / "sessions/2026/01/01" / f"rollout-2026-01-01T00-00-00-{tid}.jsonl"
         rows = [

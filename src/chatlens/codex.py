@@ -343,6 +343,14 @@ def _is_typed(payload: dict, text: str) -> bool:
 _STATE_CON = {}
 
 
+def close_state():
+    """Release cached read-only connections after a CLI operation."""
+    for con in _STATE_CON.values():
+        if con is not None:
+            con.close()
+    _STATE_CON.clear()
+
+
 def _state_con():
     """One read-only state_5 connection per process (was reopened per chat: 473 opens = 6.7s in an index run)."""
     db = os.path.join(home(), "state_5.sqlite")
