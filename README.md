@@ -40,6 +40,19 @@ chatlens card codex:SESSION_ID --json
 
 Use the source and ID from `list` or `search`. Unique bare IDs and prefixes work too; ambiguous IDs fail with candidates. Refresh the index after new conversations or exclusions. Search includes the last refresh time and coverage for each indexed source; cached results do not prove that a session is still active.
 
+## See it work
+
+The disposable demo creates synthetic Codex, Claude Code, and Hermes stores, then runs the same workflow a real agent would use: discover, index, search, read, and build a work card.
+
+```console
+{"coverage":{"status":"complete"},"errors":[],"schema":"chatlens-list/v1","threads":[{"source":"claude"},{"source":"codex"},{"source":"hermes"}]}
+{"indexed":3,"failed":0,"partial":false,"schema":"chatlens-index/v1","status":"complete"}
+{"matches":[{"source":"claude","title":"Find the parser and explain the release workflow."},{"source":"hermes"},{"source":"codex"}],"schema":"chatlens-search/v1"}
+{"schema":"chatlens-card/v1","input":{"status":"complete"},"claims":{"verification":"not_verified: transcript statements are claims; check live evidence"}}
+```
+
+The demo ends with `demo_scope=synthetic_fixture_only`; its transcripts are deliberately synthetic and never count as live verification. That boundary is part of the product contract.
+
 To try all three readers without using your own history:
 
 ```console
