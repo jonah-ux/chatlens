@@ -44,6 +44,8 @@ Use the source and ID from `list` or `search`. Unique bare IDs and prefixes work
 
 The disposable demo creates synthetic Codex, Claude Code, and Hermes stores, then runs the same workflow a real agent would use: discover, index, search, read, and build a work card.
 
+![Chatlens synthetic demo workflow](assets/demo-workflow.svg)
+
 ```console
 {"coverage":{"status":"complete"},"errors":[],"schema":"chatlens-list/v1","threads":[{"source":"claude"},{"source":"codex"},{"source":"hermes"}]}
 {"indexed":3,"failed":0,"partial":false,"schema":"chatlens-index/v1","status":"complete"}
