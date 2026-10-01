@@ -89,6 +89,16 @@ class EvidenceTest(unittest.TestCase):
             self.assertTrue(search["matches"])
             self.assertEqual(search["index"]["sources"]["codex"]["coverage"]["status"], "partial")
 
+    def test_invalid_utf8_record_is_partial_evidence(self):
+        with fixture_home() as (root, tid, _):
+            rollout = next((root / ".codex/sessions").rglob("*.jsonl"))
+            with rollout.open("ab") as out:
+                out.write(b"\xff\xfe\n")
+            status, card, _ = invoke("card", "codex:" + tid, "--json")
+            self.assertEqual(status, 3)
+            self.assertEqual(card["input"]["status"], "partial")
+            self.assertIn("unparseable", card["input"]["warnings"][0])
+
     def test_unterminated_writer_record_is_partial_evidence(self):
         with fixture_home() as (root, tid, cid):
             paths = [("codex:" + tid, next((root / ".codex/sessions").rglob("*.jsonl"))),
