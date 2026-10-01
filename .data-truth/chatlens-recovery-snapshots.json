@@ -8,8 +8,7 @@
     }
   ],
   "facts": [
-    "chatlens.public_cli.source_contract",
-    "chatlens.trace_envelope.interop_contract"
+    "chatlens.public_cli.source_contract"
   ],
   "why_trace": {
     "verdict": "GENUINE_BUG",
