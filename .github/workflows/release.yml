@@ -1,0 +1,63 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Annotated tag to publish"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate tag and package version
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os, tomllib
+          tag = os.environ["RELEASE_TAG"]
+          with open("pyproject.toml", "rb") as handle:
+              version = tomllib.load(handle)["project"]["version"]
+          if tag != f"v{version}":
+              raise SystemExit(f"tag {tag} does not match project version {version}")
+          print(f"Release identity verified: {tag}")
+          PY
+      - name: Build distributions and checksums
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build --sdist --wheel
+          sha256sum dist/* > dist/SHA256SUMS
+      - name: Verify wheel consumer
+        run: |
+          python -m venv .release-wheel
+          .release-wheel/bin/python -m pip install dist/*.whl
+          .release-wheel/bin/chatlens --version
+          .release-wheel/bin/chatlens --help
+      - name: Verify source consumer
+        run: |
+          python -m venv .release-sdist
+          .release-sdist/bin/python -m pip install dist/*.tar.gz
+          .release-sdist/bin/chatlens --version
+          .release-sdist/bin/chatlens --help
+      - name: Publish prerelease assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ inputs.release_tag || github.ref_name }}" dist/* \
+            --repo "${{ github.repository }}" \
+            --verify-tag \
+            --title "${{ github.repository }} ${{ github.ref_name }}" \
+            --generate-notes
