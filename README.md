@@ -21,7 +21,7 @@ Install the versioned GitHub release in a virtual environment:
 ```console
 python3 -m venv .venv
 . .venv/bin/activate
-python -m pip install 'git+https://github.com/jonah-ux/chatlens.git@v0.1.0'
+python3 -m pip install 'git+https://github.com/jonah-ux/chatlens.git@v0.1.0'
 chatlens --version
 chatlens --help
 ```
@@ -60,7 +60,7 @@ To try all three readers without using your own history:
 ```console
 git clone --branch v0.1.0 https://github.com/jonah-ux/chatlens.git
 cd chatlens
-python demos/demo.py
+python3 demos/demo.py
 ```
 
 The demo creates temporary synthetic stores and exercises the installed package. Every transcript and reported test result in it is synthetic.
@@ -118,10 +118,10 @@ Reads are bounded to 64 MiB for each JSONL file, 200,000 events, and 1,000,000 r
 ## Contribute
 
 ```console
-python -m pip install -e .
-python -m unittest discover -s tests -v
-python -m pip install build
-python -m build --sdist --wheel
+python3 -m pip install -e .
+python3 -m unittest discover -s tests -v
+python3 -m pip install build
+python3 -m build --sdist --wheel
 ```
 
 Tests use disposable synthetic stores. Please include a small, sanitized fixture for a new format or bug. See the [CLI reference](docs/cli.md), [contributing](CONTRIBUTING.md), [security](SECURITY.md), [release process](docs/releasing.md), and [source provenance](PROVENANCE.md).

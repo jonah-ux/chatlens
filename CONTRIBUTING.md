@@ -7,7 +7,7 @@ Thanks for helping improve ChatLens. Keep this project local-first and provider-
 - Use synthetic data in tests. Never add private transcripts, user paths, live IDs, or credential files.
 - Readers must open source SQLite stores read-only and never mutate native transcripts.
 - Preserve ambiguity refusal and claim-versus-verification semantics.
-- Run `python -m unittest discover -s tests -v` and `python -m compileall -q src tests` before proposing changes.
+- Run `python3 -m unittest discover -s tests -v` and `python3 -m compileall -q src tests` before proposing changes.
 - Keep the version in `pyproject.toml` and `src/chatlens/__init__.py` consistent. Maintainers own release tags and publication.
 
 See [Security](SECURITY.md), [agent usage](README.md#agent-interface), and [releasing](docs/releasing.md).
