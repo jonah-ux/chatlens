@@ -21,6 +21,7 @@ from . import claude, codex, hermes
 from .card import build as build_card, render_markdown
 from .model import ASSISTANT, TOOL_RESULT, USER, Thread, fmt_ts
 from .render import render
+from .snapshot import build_snapshot, read_snapshot, validate_snapshot, verify_snapshot, write_snapshot
 
 ADAPTERS = {"codex": codex, "claude": claude, "hermes": hermes}
 MAX_EVENTS = 200_000
@@ -315,6 +316,87 @@ def cmd_card(args) -> int:
     return 3 if errors else 0
 
 
+def cmd_bundle(args) -> int:
+    """Capture a compact, content-addressed recovery snapshot."""
+    source, thread, events, errors = _load_events(args.ref)
+    snapshot = build_snapshot(source, thread, events, errors, _node())
+    if args.out:
+        write_snapshot(args.out, snapshot)
+    if args.json:
+        _json(snapshot)
+    elif args.out:
+        print(f"wrote {args.out} ({snapshot['snapshot_sha256']})")
+    else:
+        print(json.dumps(snapshot, ensure_ascii=False, indent=2, sort_keys=True))
+    return 3 if errors else 0
+
+
+def cmd_verify_bundle(args) -> int:
+    """Compare a snapshot with the currently readable native transcript."""
+    try:
+        snapshot = read_snapshot(args.path)
+    except (OSError, ValueError, TypeError) as exc:
+        report = {"schema": "chatlens-snapshot-verify/v1", "ok": False,
+                  "snapshot_state": "invalid", "source_state": "unknown",
+                  "source": None, "id": None, "snapshot_sha256": None,
+                  "expected_events_sha256": None, "current_events_sha256": None,
+                  "errors": [str(exc)]}
+        if args.json:
+            _json(report)
+        else:
+            print("unknown: snapshot could not be read")
+            print(f"  {exc}")
+        return 3
+    if not isinstance(snapshot, dict):
+        report = {"schema": "chatlens-snapshot-verify/v1", "ok": False,
+                  "snapshot_state": "invalid", "source_state": "unknown",
+                  "source": None, "id": None, "snapshot_sha256": None,
+                  "expected_events_sha256": None, "current_events_sha256": None,
+                  "errors": ["snapshot must be a JSON object"]}
+        if args.json:
+            _json(report)
+        else:
+            print("unknown: snapshot is not a JSON object")
+        return 3
+    source = snapshot.get("source")
+    thread_id = snapshot.get("id")
+    if not isinstance(source, str) or not isinstance(thread_id, str):
+        report = {"schema": "chatlens-snapshot-verify/v1", "ok": False,
+                  "snapshot_state": "invalid", "source_state": "unknown",
+                  "source": source, "id": thread_id, "snapshot_sha256": snapshot.get("snapshot_sha256"),
+                  "expected_events_sha256": None, "current_events_sha256": None,
+                  "errors": ["snapshot is missing source or id"]}
+        if args.json:
+            _json(report)
+        else:
+            print("unknown: snapshot is missing source or id")
+        return 3
+    try:
+        source_name, thread, events, errors = _load_events(f"{source}:{thread_id}")
+    except (CLIError, OSError, sqlite3.Error, ValueError, TypeError, AttributeError, KeyError, RuntimeError) as exc:
+        snapshot_valid, snapshot_errors = validate_snapshot(snapshot)
+        report = {"schema": "chatlens-snapshot-verify/v1", "ok": False,
+                  "snapshot_state": "valid" if snapshot_valid else "invalid", "source_state": "unknown",
+                  "source": source, "id": thread_id, "snapshot_sha256": snapshot.get("snapshot_sha256"),
+                  "expected_events_sha256": (snapshot.get("identity") or {}).get("events_sha256"),
+                  "current_events_sha256": None, "errors": snapshot_errors + [str(exc)]}
+        if args.json:
+            _json(report)
+        else:
+            print(f"unknown: {source}:{thread_id}")
+            print(f"  {exc}")
+        return 3
+    report = verify_snapshot(snapshot, source_name, thread, events, errors)
+    if args.json:
+        _json(report)
+    else:
+        status = "matched" if report["ok"] else report["source_state"]
+        print(f"{status}: {source_name}:{thread_id}")
+        for error in report["errors"]:
+            print(f"  {error}")
+    return 0 if report["ok"] else (3 if errors or report["snapshot_state"] == "invalid" else 1)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="chatlens", description="Read local Codex, Claude Code, and Hermes chats offline.")
     parser.add_argument("--version", action="version", version=f"chatlens {__version__}")
@@ -350,6 +432,17 @@ def build_parser() -> argparse.ArgumentParser:
     cards.add_argument("ref")
     cards.add_argument("--json", action="store_true")
     cards.set_defaults(func=cmd_card)
+
+    bundles = sub.add_parser("bundle", help="capture a content-addressed recovery snapshot")
+    bundles.add_argument("ref")
+    bundles.add_argument("--out", metavar="PATH", help="write a new owner-only JSON snapshot")
+    bundles.add_argument("--json", action="store_true", help="emit the snapshot JSON")
+    bundles.set_defaults(func=cmd_bundle)
+
+    verify = sub.add_parser("verify-bundle", help="verify a recovery snapshot against its source")
+    verify.add_argument("path", metavar="SNAPSHOT")
+    verify.add_argument("--json", action="store_true", help="emit versioned JSON")
+    verify.set_defaults(func=cmd_verify_bundle)
     return parser
 
 

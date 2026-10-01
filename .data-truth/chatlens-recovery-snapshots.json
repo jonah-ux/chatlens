@@ -1,0 +1,29 @@
+{
+  "version": "data-truth-change/v1",
+  "canonical_project": "jonah-ux/chatlens",
+  "data_paths": [
+    {
+      "path": "tests/test_evidence.py",
+      "sha256": "5f9caf866da0847ee8f06b4893ad611549a92849d7d35b7bf34bdaa718916cf9"
+    }
+  ],
+  "facts": [
+    "chatlens.public_cli.source_contract"
+  ],
+  "why_trace": {
+    "verdict": "GENUINE_BUG",
+    "root_cause": "Session recovery had no portable content identity, so a saved work card could not distinguish a matching transcript from a changed or unavailable source.",
+    "evidence": [
+      "Synthetic fixture tests cover snapshot round trips, source drift, snapshot tamper, and unavailable inventory states.",
+      "Fresh wheel consumer proof creates a new recovery artifact and verifies a matching Claude source.",
+      "The snapshot stores event digests and bounded card claims without copying transcript text."
+    ]
+  },
+  "documentation": [
+    "README.md",
+    "docs/cli.md",
+    "CHANGELOG.md",
+    "PROVENANCE.md"
+  ],
+  "source_commit": "77692beee3df8edf1c39ccd52c8d1208ea90c4c9"
+}

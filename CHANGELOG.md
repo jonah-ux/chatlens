@@ -2,6 +2,13 @@
 
 All notable changes to ChatLens are recorded here.
 
+## Unreleased
+
+- Added `bundle` and `verify-bundle` with `chatlens-snapshot/v1` and
+  `chatlens-snapshot-verify/v1` for compact, content-addressed session recovery.
+  Snapshots preserve work-card claims and bounded event identity without copying
+  transcript text; verification fails closed when the snapshot or source changes.
+
 ## [0.1.0] — pending public release
 
 - Standalone offline CLI for Codex, Claude Code, and Hermes transcript stores.
