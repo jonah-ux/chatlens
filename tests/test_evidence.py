@@ -22,6 +22,51 @@ def invoke(*args):
 
 
 class EvidenceTest(unittest.TestCase):
+    def test_snapshot_round_trip_and_source_drift_are_fail_closed(self):
+        with fixture_home() as (root, tid, _):
+            snapshot_path = root / "state" / "recovery.json"
+            status, snapshot, _ = invoke("bundle", "codex:" + tid, "--out", str(snapshot_path), "--json")
+            self.assertEqual(status, 0)
+            self.assertEqual(snapshot["schema"], "chatlens-snapshot/v1")
+            self.assertEqual(snapshot["input"]["status"], "complete")
+            self.assertNotIn("transcript", snapshot)
+            self.assertEqual(stat.S_IMODE(snapshot_path.stat().st_mode), 0o600)
+
+            status, report, _ = invoke("verify-bundle", str(snapshot_path), "--json")
+            self.assertEqual(status, 0)
+            self.assertTrue(report["ok"])
+            self.assertEqual(report["source_state"], "matched")
+
+            rollout = next((root / ".codex/sessions").rglob("*.jsonl"))
+            rollout.write_text(rollout.read_text().replace("The parser is ready. Tests pass.", "The parser changed."))
+            status, report, _ = invoke("verify-bundle", str(snapshot_path), "--json")
+            self.assertEqual(status, 1)
+            self.assertFalse(report["ok"])
+            self.assertEqual(report["source_state"], "mismatch")
+
+    def test_snapshot_tamper_and_ambiguous_or_missing_sources_do_not_verify(self):
+        with fixture_home() as (root, tid, _):
+            snapshot_path = root / "state" / "recovery.json"
+            invoke("bundle", "codex:" + tid, "--out", str(snapshot_path), "--json")
+            payload = json.loads(snapshot_path.read_text())
+            payload["title"] = "tampered"
+            snapshot_path.write_text(json.dumps(payload))
+            status, report, _ = invoke("verify-bundle", str(snapshot_path), "--json")
+            self.assertEqual(status, 3)
+            self.assertFalse(report["ok"])
+            self.assertEqual(report["snapshot_state"], "invalid")
+
+            payload["snapshot_sha256"] = "0" * 64
+            snapshot_path.write_text(json.dumps(payload))
+            with closing(sqlite3.connect(root / ".codex/state_5.sqlite")) as con:
+                con.execute("DELETE FROM threads")
+                con.commit()
+            status, report, _ = invoke("verify-bundle", str(snapshot_path), "--json")
+            self.assertEqual(status, 3)
+            self.assertFalse(report["ok"])
+            self.assertEqual(report["source_state"], "unknown")
+            self.assertEqual(report["snapshot_state"], "invalid")
+
     def test_hermes_card_resume_uses_the_native_session_identity(self):
         with fixture_home() as (root, _, _):
             status, card, _ = invoke("card", "hermes:hermes:hermes-fixture", "--json")
