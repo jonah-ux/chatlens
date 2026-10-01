@@ -28,7 +28,7 @@ chatlens --version
 chatlens --help
 ```
 
-Alternatively, install a wheel from [GitHub Releases](https://github.com/jonah-ux/chatlens/releases). Python must provide SQLite FTS5. No API key, model account, or daemon is needed. CI covers Linux, macOS, and Windows for the synthetic fixtures, cache contract, and installed CLI. Native session-store discovery remains dependent on the source runtime and filesystem permissions; real user stores are never used in CI.
+Alternatively, install a wheel from [GitHub Releases](https://github.com/jonah-ux/chatlens/releases). Python must provide SQLite FTS5. No API key, model account, or daemon is needed. CI covers Linux and macOS for the synthetic fixtures, cache contract, and installed CLI. Windows is currently outside the verified support boundary because the private-cache contract and several source fixtures depend on POSIX permission and filesystem semantics; real user stores are never used in CI.
 
 ## Quick start
 
