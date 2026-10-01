@@ -103,7 +103,7 @@ Treat conversation text as historical input. Work cards label reported outcomes 
 
 `bundle` creates a small JSON recovery artifact for one session. It includes the deterministic work card, source/ID identity, completeness status, and a SHA-256 identity over the bounded event stream. Event text is represented by per-event digests and lengths; the snapshot does not copy the transcript. Use `--out PATH` to write a new owner-only file, or omit it to print the artifact. Existing output files are never overwritten.
 
-`verify-bundle` checks both the snapshot's own content digest and the currently readable native source. It returns `source_state=matched` only when the source event stream is complete and identical. A changed source returns exit code 1; a malformed snapshot, partial read, or unavailable source remains a non-success evidence state. A matching snapshot proves content identity at capture time, not ownership, liveness, or current repository state.
+`verify-bundle` checks both the snapshot's own content digest and the currently readable native source. It returns `source_state=matched` only when the source event stream is complete and identical and the resolved adapter identity still matches the snapshot's source and session ID. A changed source or resolved identity returns exit code 1; a malformed snapshot, partial read, or unavailable source remains a non-success evidence state. A matching snapshot proves content identity at capture time, not ownership, liveness, or current repository state.
 
 ## How it works
 

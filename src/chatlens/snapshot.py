@@ -118,9 +118,15 @@ def verify_snapshot(snapshot: dict, source: str, thread, events: list,
     current = event_identity(events)
     source_errors = [item.get("error", "source read was partial") for item in errors]
     source_state = "unknown"
+    identity_errors = []
+    if getattr(thread, "id", None) != snapshot.get("id"):
+        identity_errors.append("resolved thread id differs from the snapshot")
+    if source != snapshot.get("source"):
+        identity_errors.append("resolved source differs from the snapshot")
     if not errors:
-        source_state = "matched" if current == expected else "mismatch"
+        source_state = "matched" if current == expected and not identity_errors else "mismatch"
     report_errors = list(validation_errors)
+    report_errors.extend(identity_errors)
     if errors:
         report_errors.extend(source_errors)
     elif source_state == "mismatch":

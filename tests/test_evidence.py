@@ -12,6 +12,7 @@ from unittest import mock
 
 from test_cli import fixture_home
 from chatlens import cli
+from chatlens.snapshot import build_snapshot, verify_snapshot
 
 
 def invoke(*args):
@@ -55,7 +56,6 @@ class EvidenceTest(unittest.TestCase):
             self.assertEqual(status, 3)
             self.assertFalse(report["ok"])
             self.assertEqual(report["snapshot_state"], "invalid")
-
             payload["snapshot_sha256"] = "0" * 64
             snapshot_path.write_text(json.dumps(payload))
             with closing(sqlite3.connect(root / ".codex/state_5.sqlite")) as con:
@@ -66,6 +66,16 @@ class EvidenceTest(unittest.TestCase):
             self.assertFalse(report["ok"])
             self.assertEqual(report["source_state"], "unknown")
             self.assertEqual(report["snapshot_state"], "invalid")
+
+    def test_snapshot_verifier_rejects_resolved_identity_drift(self):
+        with fixture_home() as (root, tid, _):
+            source, thread, events, errors = cli._load_events("codex:" + tid)
+            snapshot = build_snapshot(source, thread, events, errors, "fixture")
+            thread.id = "different-thread"
+            report = verify_snapshot(snapshot, source, thread, events, errors)
+            self.assertFalse(report["ok"])
+            self.assertEqual(report["source_state"], "mismatch")
+            self.assertTrue(any("resolved thread id differs" in error for error in report["errors"]))
 
     def test_hermes_card_resume_uses_the_native_session_identity(self):
         with fixture_home() as (root, _, _):

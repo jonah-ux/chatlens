@@ -2,6 +2,11 @@
 
 All notable changes to ChatLens are recorded here.
 
+## [0.2.1] — snapshot identity hardening
+
+- Reject snapshot verification when the resolved source or session identity differs from the captured identity.
+- Add an adversarial regression fixture for resolver identity drift.
+
 ## [0.2.0] — recovery snapshots
 
 - Added `bundle` and `verify-bundle` with `chatlens-snapshot/v1` and `chatlens-snapshot-verify/v1` for compact, content-addressed session recovery.
