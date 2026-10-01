@@ -22,6 +22,8 @@ from .card import build as build_card, render_markdown
 from .model import ASSISTANT, TOOL_RESULT, USER, Thread, fmt_ts
 from .render import render
 from .snapshot import build_snapshot, read_snapshot, validate_snapshot, verify_snapshot, write_snapshot
+from .trace import (build_trace, envelope_lines, export_summary, import_report,
+                    read_trace, write_trace)
 
 ADAPTERS = {"codex": codex, "claude": claude, "hermes": hermes}
 MAX_EVENTS = 200_000
@@ -397,6 +399,53 @@ def cmd_verify_bundle(args) -> int:
     return 0 if report["ok"] else (3 if errors or report["snapshot_state"] == "invalid" else 1)
 
 
+def cmd_trace_export(args) -> int:
+    """Export a bounded redacted JSONL trace envelope for another local reader."""
+    source, thread, events, errors = _load_events(args.ref)
+    envelope = build_trace(source, thread, events, errors, _node())
+    if args.out:
+        write_trace(args.out, envelope)
+        if args.json:
+            _json(export_summary(envelope, args.out))
+        else:
+            print(f"wrote {args.out} ({envelope['header']['envelope_sha256']})")
+    elif args.json:
+        _json(export_summary(envelope))
+    else:
+        print("\n".join(envelope_lines(envelope)))
+    return 3 if errors or envelope["header"]["input"]["status"] == "partial" else 0
+
+
+def cmd_trace_import(args) -> int:
+    """Validate one exported trace envelope without consulting native sources."""
+    try:
+        envelope = read_trace(args.path)
+    except (OSError, ValueError, TypeError) as exc:
+        report = {"schema": "chatlens-trace-import/v1", "ok": False,
+                  "envelope_state": "unknown", "trace_state": "unknown",
+                  "event_count": 0, "events_sha256": None,
+                  "envelope_sha256": None, "source": None,
+                  "session_id_sha256": None, "errors": [str(exc)]}
+        if args.json:
+            _json(report)
+        else:
+            print(f"unknown: {exc}")
+        return 3
+    report = import_report(envelope)
+    if args.json:
+        _json(report)
+    else:
+        status = "matched" if report["ok"] else report["trace_state"]
+        print(f"{status}: {report.get('event_count', 0)} event(s)")
+        for error in report["errors"]:
+            print(f"  {error}")
+    if report["ok"]:
+        return 0
+    if report["envelope_state"] in ("invalid", "unknown") or report.get("input_status") == "partial":
+        return 3
+    return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="chatlens", description="Read local Codex, Claude Code, and Hermes chats offline.")
     parser.add_argument("--version", action="version", version=f"chatlens {__version__}")
@@ -443,6 +492,17 @@ def build_parser() -> argparse.ArgumentParser:
     verify.add_argument("path", metavar="SNAPSHOT")
     verify.add_argument("--json", action="store_true", help="emit versioned JSON")
     verify.set_defaults(func=cmd_verify_bundle)
+
+    trace_export = sub.add_parser("trace-export", help="export a bounded redacted JSONL trace envelope")
+    trace_export.add_argument("ref", help="source-qualified session reference")
+    trace_export.add_argument("--out", metavar="PATH", help="write a new owner-only JSONL envelope")
+    trace_export.add_argument("--json", action="store_true", help="emit the export summary as JSON")
+    trace_export.set_defaults(func=cmd_trace_export)
+
+    trace_import = sub.add_parser("trace-import", help="validate an exported trace envelope")
+    trace_import.add_argument("path", metavar="TRACE")
+    trace_import.add_argument("--json", action="store_true", help="emit versioned JSON")
+    trace_import.set_defaults(func=cmd_trace_import)
     return parser
 
 

@@ -4,7 +4,7 @@
   "data_paths": [
     {
       "path": "tests/test_evidence.py",
-      "sha256": "5f9caf866da0847ee8f06b4893ad611549a92849d7d35b7bf34bdaa718916cf9"
+      "sha256": "caa1062f4b785be41e5a559d8a271d37c91ded28d88ea8ebcf1bb1daa17d0f1b"
     }
   ],
   "facts": [
@@ -16,14 +16,17 @@
     "evidence": [
       "Synthetic fixture tests cover snapshot round trips, source drift, snapshot tamper, and unavailable inventory states.",
       "Fresh wheel consumer proof creates a new recovery artifact and verifies a matching Claude source.",
-      "The snapshot stores event digests and bounded card claims without copying transcript text."
+      "The snapshot stores event digests and bounded card claims without copying transcript text.",
+      "Synthetic fixture tests cover redacted trace export/import, deterministic output, tamper refusal, and partial-input refusal.",
+      "Trace rows are canonical JSONL with source identity, redacted event, and envelope digests; the native store is not needed for import."
     ]
   },
   "documentation": [
     "README.md",
     "docs/cli.md",
     "CHANGELOG.md",
-    "PROVENANCE.md"
+    "PROVENANCE.md",
+    "src/chatlens/trace.py"
   ],
-  "source_commit": "77692beee3df8edf1c39ccd52c8d1208ea90c4c9"
+  "source_commit": "53f89d3e2a6c22c676691d4cc7e06ce74cc28ff5"
 }

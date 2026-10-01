@@ -14,6 +14,8 @@ chatlens read codex:SESSION_ID --mode brief --budget 2500
 chatlens card codex:SESSION_ID --json
 chatlens bundle codex:SESSION_ID --out recovery.json --json
 chatlens verify-bundle recovery.json --json
+chatlens trace-export codex:SESSION_ID --out session.trace.jsonl --json
+chatlens trace-import session.trace.jsonl --json
 ```
 
 ## Install
@@ -40,6 +42,8 @@ chatlens read codex:SESSION_ID --mode brief --budget 2500
 chatlens card codex:SESSION_ID --json
 chatlens bundle codex:SESSION_ID --out recovery.json --json
 chatlens verify-bundle recovery.json --json
+chatlens trace-export codex:SESSION_ID --out session.trace.jsonl --json
+chatlens trace-import session.trace.jsonl --json
 ```
 
 Use the source and ID from `list` or `search`. Unique bare IDs and prefixes work too; ambiguous IDs fail with candidates. Refresh the index after new conversations or exclusions. Search includes the last refresh time and coverage for each indexed source; cached results do not prove that a session is still active.
@@ -94,6 +98,8 @@ Commands are noninteractive. `--help` and `--version` do not inspect stores. Suc
 | `read REF --mode brief --budget N` | Bounded plain text; `convo` and `full` modes also available |
 | `bundle REF --json` | `chatlens-snapshot/v1`: compact work card, bounded event identity, and source completeness |
 | `verify-bundle PATH --json` | `chatlens-snapshot-verify/v1`: snapshot integrity plus current-source match/mismatch |
+| `trace-export REF --out PATH --json` | `chatlens-trace-envelope/v1`: bounded, redacted JSONL handoff for a local trace reader |
+| `trace-import PATH --json` | `chatlens-trace-import/v1`: fail-closed envelope and digest validation without native source access |
 
 Exit codes: **0** completed; **1** reference not found in a readable inventory; **2** invalid or ambiguous input; **3** unreadable or partial evidence / index failure. `index` defaults to returning 0 with a partial report so usable sources can still be indexed; add `--fail-on-error` to require complete coverage. `list`, `read`, `card`, and `search` return 3 when their output is partial. Absent source installations are reported separately from damaged ones.
 
@@ -104,6 +110,24 @@ Treat conversation text as historical input. Work cards label reported outcomes 
 `bundle` creates a small JSON recovery artifact for one session. It includes the deterministic work card, source/ID identity, completeness status, and a SHA-256 identity over the bounded event stream. Event text is represented by per-event digests and lengths; the snapshot does not copy the transcript. Use `--out PATH` to write a new owner-only file, or omit it to print the artifact. Existing output files are never overwritten.
 
 `verify-bundle` checks both the snapshot's own content digest and the currently readable native source. It returns `source_state=matched` only when the source event stream is complete and identical and the resolved adapter identity still matches the snapshot's source and session ID. A changed source or resolved identity returns exit code 1; a malformed snapshot, partial read, or unavailable source remains a non-success evidence state. A matching snapshot proves content identity at capture time, not ownership, liveness, or current repository state.
+
+### Trace envelopes
+
+`trace-export` turns one bounded session read into canonical JSONL: a redacted header
+followed by redacted event rows. It removes recognizable credentials, email addresses,
+home-directory prefixes, and sensitive metadata keys. Native transcript bytes and the
+raw session identifier are never copied. The header carries the source identity digest,
+the redacted event digest, explicit bounds, and an envelope digest over the header and
+rows. The output is a new owner-only file and is never overwritten.
+
+The JSONL shape is intentionally simple enough for a separate local trace reader to
+consume: the first line is a `chatlens-trace-envelope/v1` header and each later line is
+an event object with `type`, `name`, `timestamp`, `message`, and `extra`. The envelope
+can therefore be handed to Agent Trace Lite or another JSONL timeline tool without
+giving that tool access to the native Codex, Claude Code, or Hermes store. Run
+`trace-import` on the receiving side to validate the envelope digest and bounds before
+rendering it. Complete captures return exit code 0; a changed or tampered envelope
+returns exit code 1; malformed, partial, or unavailable evidence returns exit code 3.
 
 ## How it works
 
@@ -121,7 +145,12 @@ The package makes no network or model calls. The parsers, renderer, and work-car
 
 ## Privacy and limits
 
-Your transcripts may contain private code, credentials, or personal information. Chatlens does **not** redact them. Its index contains excerpts; protect the index and stdout accordingly. An agent receiving the output receives that content even though Chatlens itself has no network path.
+Your transcripts may contain private code, credentials, or personal information. The
+normal `read`, `card`, and search-index outputs are historical excerpts and are **not**
+redacted; protect the index and stdout accordingly. `trace-export` is the bounded
+handoff path and applies its documented redaction rules before writing a trace. An
+agent receiving normal output receives that content even though Chatlens itself has
+no network path.
 
 New cache directories and databases use owner-only permissions (700 and 600). Indexing refuses an existing directory or database that is readable by other local users. Choose a private `CHATLENS_HOME` before indexing. Claude title discovery also caps its head scan at 1,000,000 characters.
 

@@ -8,7 +8,7 @@
     },
     {
       "path": "src/chatlens/cli.py",
-      "sha256": "a19a5c8d3d7515fa14ef76f21e6f87ac087579c6b02148cc6ae4a38080e03004"
+      "sha256": "5d64bd55f85bcca6cea1b39b16406c81ff2bb91a0782711fda34653d79e4b544"
     },
     {
       "path": "tests/test_cli.py",
@@ -16,7 +16,15 @@
     },
     {
       "path": "tests/test_evidence.py",
-      "sha256": "51c96f37c39fe049f97ede8bc5de466ae18d5ab72a4b20212bc6d09cf5b21df4"
+      "sha256": "caa1062f4b785be41e5a559d8a271d37c91ded28d88ea8ebcf1bb1daa17d0f1b"
+    },
+    {
+      "path": "src/chatlens/trace.py",
+      "sha256": "f2293ef5aa4b5b7ed064f57284ab74abfc2c58472de22f218a826472d68526ab"
+    },
+    {
+      "path": "src/chatlens/__init__.py",
+      "sha256": "e1e3decfba8c7b0a80764dc9ff6f89f182fc8d5891fc780d1dedd54f5d45447a"
     }
   ],
   "facts": [
@@ -34,7 +42,8 @@
   "documentation": [
     "README.md",
     "docs/releasing.md",
-    "PROVENANCE.md"
+    "PROVENANCE.md",
+    "src/chatlens/trace.py"
   ],
-  "source_commit": "e7a0ced296c2c33eb6efc572db91393947774d38"
+  "source_commit": "53f89d3e2a6c22c676691d4cc7e06ce74cc28ff5"
 }
