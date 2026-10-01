@@ -19,9 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-Provenance: ChatLens parser, event model, and renderer include adapted code
-from Jonah Helland's MIT-licensed ChatLens kit in jonah-ux/fleet, initially
-introduced 2026-09-24. Public source-history review for this bundle remains
-pending; see docs/releasing.md before publishing. Other project material was
-written for this standalone distribution.

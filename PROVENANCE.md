@@ -5,3 +5,11 @@ Chatlens adapts the reusable Chatlens parsers, event model, and renderer from Jo
 This public repository starts with a reviewed standalone snapshot. Private Fleet history has not been transplanted: commit messages and older source versions have a broader disclosure surface than the current portable files. The public history records real extraction, correctness fixes, tests, documentation, and subsequent releases; it contains no padded activity or backdated commits.
 
 The portable source is released by its owner under the MIT license. Fleet orchestration, remote access, account/provider routing, credentials, business telemetry, and private transcripts are excluded. All distributed fixtures and demos are synthetic.
+
+## License provenance
+
+Provenance: ChatLens parser, event model, and renderer include adapted code
+from Jonah Helland's MIT-licensed ChatLens kit in jonah-ux/fleet, initially
+introduced 2026-09-24. Public source-history review for this bundle remains
+pending; see docs/releasing.md before publishing. Other project material was
+written for this standalone distribution.
