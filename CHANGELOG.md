@@ -22,6 +22,10 @@ All notable changes to ChatLens are recorded here.
   `chatlens-snapshot-verify/v1` for compact, content-addressed session recovery.
   Snapshots preserve work-card claims and bounded event identity without copying
   transcript text; verification fails closed when the snapshot or source changes.
+- Added `trace-export` and `trace-import` with `chatlens-trace-envelope/v1` and
+  `chatlens-trace-import/v1`. The bounded JSONL handoff recursively redacts
+  credentials and local identifiers, binds canonical event rows and the header with
+  SHA-256 digests, and refuses tampered, malformed, or partial evidence.
 
 ## [0.1.0] — public prerelease
 

@@ -13,6 +13,7 @@ from unittest import mock
 from test_cli import fixture_home
 from chatlens import cli
 from chatlens.snapshot import build_snapshot, verify_snapshot
+from chatlens.trace import MAX_EVENTS, build_trace, import_report, validate_trace
 
 
 def invoke(*args):
@@ -23,6 +24,76 @@ def invoke(*args):
 
 
 class EvidenceTest(unittest.TestCase):
+    def test_trace_export_import_is_redacted_integrity_bound_and_portable(self):
+        with fixture_home() as (root, tid, _):
+            rollout = next((root / ".codex/sessions").rglob("*.jsonl"))
+            rollout.write_text(rollout.read_text().replace(
+                "The parser is ready. Tests pass.",
+                "Contact me at jonah@example.com via /Users/jonah/work?token=secretvalue "
+                "with Bearer abcdefghijklm."))
+            trace_path = root / "state" / "session.trace.jsonl"
+            status, summary, _ = invoke("trace-export", "codex:" + tid,
+                                        "--out", str(trace_path), "--json")
+            self.assertEqual(status, 0)
+            self.assertEqual(summary["schema"], "chatlens-trace-export/v1")
+            self.assertEqual(stat.S_IMODE(trace_path.stat().st_mode), 0o600)
+            raw = trace_path.read_text()
+            self.assertNotIn("jonah@example.com", raw)
+            self.assertNotIn("/Users/jonah", raw)
+            self.assertNotIn("secretvalue", raw)
+            self.assertIn("[EMAIL]", raw)
+            self.assertIn("[HOME]", raw)
+            self.assertIn("[REDACTED]", raw)
+
+            status, report, _ = invoke("trace-import", str(trace_path), "--json")
+            self.assertEqual(status, 0)
+            self.assertTrue(report["ok"])
+            self.assertEqual(report["event_count"], 3)
+            self.assertEqual(report["trace_state"], "matched")
+
+            envelope = {"header": json.loads(raw.splitlines()[0]),
+                        "events": [json.loads(line) for line in raw.splitlines()[1:]]}
+            valid, errors, _ = validate_trace(envelope)
+            self.assertTrue(valid, errors)
+            self.assertEqual(import_report(envelope)["envelope_state"], "valid")
+
+            envelope["events"][0]["message"] = "tampered"
+            tampered_path = root / "state" / "tampered.trace.jsonl"
+            tampered_path.write_text("\n".join(json.dumps(row) for row in
+                                        [envelope["header"], *envelope["events"]]) + "\n")
+            status, report, _ = invoke("trace-import", str(tampered_path), "--json")
+            self.assertEqual(status, 1)
+            self.assertFalse(report["ok"])
+            self.assertEqual(report["envelope_state"], "mismatch")
+
+    def test_trace_export_is_deterministic_and_partial_input_stays_non_success(self):
+        with fixture_home() as (root, tid, _):
+            source = next((root / ".codex/sessions").rglob("*.jsonl"))
+            first = root / "state" / "first.trace.jsonl"
+            second = root / "state" / "second.trace.jsonl"
+            self.assertEqual(invoke("trace-export", "codex:" + tid, "--out", str(first), "--json")[0], 0)
+            self.assertEqual(invoke("trace-export", "codex:" + tid, "--out", str(second), "--json")[0], 0)
+            self.assertEqual(first.read_bytes(), second.read_bytes())
+            with source.open("a") as out:
+                out.write("{broken json\n")
+            partial = root / "state" / "partial.trace.jsonl"
+            status, summary, _ = invoke("trace-export", "codex:" + tid, "--out", str(partial), "--json")
+            self.assertEqual(status, 3)
+            self.assertEqual(summary["input_status"], "partial")
+            status, report, _ = invoke("trace-import", str(partial), "--json")
+            self.assertEqual(status, 3)
+            self.assertFalse(report["ok"])
+            self.assertIn("partial input", " ".join(report["errors"]))
+
+    def test_trace_builder_enforces_a_bounded_event_count(self):
+        with fixture_home() as (root, tid, _):
+            source, thread, events, errors = cli._load_events("codex:" + tid)
+            events = events * ((MAX_EVENTS // len(events)) + 2)
+            envelope = build_trace(source, thread, events, errors, "fixture")
+            self.assertEqual(envelope["header"]["event_count"], MAX_EVENTS)
+            self.assertEqual(envelope["header"]["input"]["status"], "partial")
+            self.assertFalse(validate_trace(envelope)[1])
+
     def test_snapshot_round_trip_and_source_drift_are_fail_closed(self):
         with fixture_home() as (root, tid, _):
             snapshot_path = root / "state" / "recovery.json"
