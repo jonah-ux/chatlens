@@ -7,3 +7,7 @@ python demos/demo.py
 ```
 
 No real home directories, network services, credentials, or model calls are used.
+
+## Portable recovery handoff
+
+`recovery_trace_roundtrip.py` builds a bounded, redacted trace envelope, writes JSONL, and validates it through the public import surface. It uses synthetic events only.
