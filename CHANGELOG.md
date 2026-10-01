@@ -2,6 +2,10 @@
 
 All notable changes to ChatLens are recorded here.
 
+## [0.2.2] — release checksum portability
+
+- Generate release checksums from artifact basenames so `sha256sum -c SHA256SUMS` works after GitHub asset download.
+
 ## [0.2.1] — snapshot identity hardening
 
 - Reject snapshot verification when the resolved source or session identity differs from the captured identity.

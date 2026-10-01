@@ -39,7 +39,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip build
           python -m build --sdist --wheel
-          sha256sum dist/* > dist/SHA256SUMS
+          (cd dist && sha256sum *.whl *.tar.gz > SHA256SUMS)
       - name: Verify wheel consumer
         run: |
           python -m venv .release-wheel
