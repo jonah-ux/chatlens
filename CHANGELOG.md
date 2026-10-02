@@ -2,6 +2,16 @@
 
 All notable changes to ChatLens are recorded here.
 
+## [0.3.0] — portable trace handoff
+
+- Add `trace-export` and `trace-import` with `chatlens-trace-envelope/v1` and
+  `chatlens-trace-import/v1` for bounded, redacted JSONL handoffs to local trace
+  readers. Canonical event rows and the header are bound with SHA-256 digests;
+  tampered, malformed, or partial evidence fails closed.
+- Expose the trace envelope helpers through the public `chatlens` package and
+  add a synthetic recovery roundtrip demo that proves redaction and integrity
+  without reading a native transcript store.
+
 ## [0.2.2] — release checksum portability
 
 - Generate release checksums from artifact basenames so `sha256sum -c SHA256SUMS` works after GitHub asset download.
@@ -19,15 +29,6 @@ All notable changes to ChatLens are recorded here.
 
 ## Unreleased
 
-- Added `bundle` and `verify-bundle` with `chatlens-snapshot/v1` and
-  `chatlens-snapshot-verify/v1` for compact, content-addressed session recovery.
-  Snapshots preserve work-card claims and bounded event identity without copying
-  transcript text; verification fails closed when the snapshot or source changes.
-- Added `trace-export` and `trace-import` with `chatlens-trace-envelope/v1` and
-  `chatlens-trace-import/v1`. The bounded JSONL handoff recursively redacts
-  credentials and local identifiers, binds canonical event rows and the header with
-  SHA-256 digests, and refuses tampered, malformed, or partial evidence.
-
 ## [0.1.0] — public prerelease
 
 - Standalone offline CLI for Codex, Claude Code, and Hermes transcript stores.
@@ -36,5 +37,6 @@ All notable changes to ChatLens are recorded here.
 - Deterministic cards that distinguish transcript claims from verified evidence.
 - Synthetic provider fixtures and demos; no network, Fleet, SSH, private credentials, OpenRouter, or Supabase dependencies.
 
+[0.3.0]: https://github.com/jonah-ux/chatlens/releases/tag/v0.3.0
 [0.2.0]: https://github.com/jonah-ux/chatlens/releases/tag/v0.2.0
 [0.1.0]: https://github.com/jonah-ux/chatlens/releases/tag/v0.1.0
