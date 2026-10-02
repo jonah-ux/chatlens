@@ -13,6 +13,7 @@ The executable is `chatlens`; `python -m chatlens` exposes the same interface. `
 | `verify-bundle PATH` | `--json` | Verify snapshot integrity and compare it with the current source |
 | `trace-export REF` | `--out PATH`, `--json` | Bounded redacted JSONL trace envelope for an external local reader |
 | `trace-import PATH` | `--json` | Validate a trace envelope without opening native source stores |
+| `evidence-export PATH` | `--id ID`, `--subject TEXT`, `--summary TEXT`, `--created-at UTC`, `--fixture-id ID`, `--out PATH`, `--json` | Project an already-redacted trace envelope into `ai-work-evidence/v1` |
 
 `REF` accepts a source-qualified ID such as `codex:SESSION_ID`, a unique native ID/prefix, or an inventory path. Hermes IDs include a home label; for example, `hermes:hermes:SESSION_ID` is the source-qualified form for the default home. Unknown custom Hermes home mappings have no generated resume command.
 
@@ -28,6 +29,7 @@ JSON modes return one document; diagnostics use stderr. The top-level schema IDs
 - Snapshot verification: `ok` is true only for a valid complete snapshot whose current source event identity matches. `source_state` is `matched`, `mismatch`, or `unknown`; a mismatch is exit code 1 and partial/invalid evidence is exit code 3.
 - Trace export: with `--out`, the command writes canonical JSONL and emits a `chatlens-trace-export/v1` summary. Without `--out`, it prints the header and event rows; adding `--json` requests the summary instead. `input_status` is `complete` or `partial`.
 - Trace import: `chatlens-trace-import/v1` validates the header, contiguous event sequence, bounds, redacted event digest, and envelope digest. `trace_state` is `matched` or `mismatch`; complete matching input is exit code 0, digest mismatch is exit code 1, and malformed or partial evidence is exit code 3.
+- Evidence export: `ai-work-evidence/v1` carries only bounded labels, artifact size/hash, and scalar trace provenance. Complete traces become `observed`; partial traces become `unknown`. The command never opens a native store or copies event text.
 - Error: `status: error`, `error`, and, for reference/usage errors, `exit_code`.
 
 Coverage statuses are readable, empty, absent, partial, unreadable, or unknown. A missing source installation is different from an unreadable installed source. Exit codes are 0 completed, 1 reference absent in a readable inventory, 2 usage/ambiguity, and 3 partial or unavailable evidence. Indexing returns 0 for a partial report unless `--fail-on-error` is present; the report still identifies the partial state.

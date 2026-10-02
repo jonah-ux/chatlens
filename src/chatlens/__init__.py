@@ -6,5 +6,6 @@ __version__ = "0.3.0"
 # surface as well as the CLI. Native adapters remain internal implementation
 # details; callers can validate a received envelope without opening them.
 from .trace import build_trace, import_report, read_trace, validate_trace, write_trace
+from .evidence import build_work_evidence, validate_work_evidence, write_work_evidence
 
-__all__ = ["__version__", "build_trace", "import_report", "read_trace", "validate_trace", "write_trace"]
+__all__ = ["__version__", "build_trace", "import_report", "read_trace", "validate_trace", "write_trace", "build_work_evidence", "validate_work_evidence", "write_work_evidence"]
