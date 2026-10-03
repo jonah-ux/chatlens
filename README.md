@@ -58,6 +58,10 @@ The disposable demo creates synthetic Codex, Claude Code, and Hermes stores, the
 
 ![Chatlens synthetic demo workflow](assets/demo-workflow.svg)
 
+Open the [session recovery walkthrough](docs/walkthrough.html) for a visual tour of source
+coverage, freshness, work-card claims, and bundle verification. The page uses fictional browser
+data; the commands in it are the real local CLI path and are never invoked by the page.
+
 ```console
 {"coverage":{"status":"complete"},"errors":[],"schema":"chatlens-list/v1","threads":[{"source":"claude"},{"source":"codex"},{"source":"hermes"}]}
 {"indexed":3,"failed":0,"partial":false,"schema":"chatlens-index/v1","status":"complete"}

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A self-contained visual walkthrough of ChatLens session recovery.">
+  <title>ChatLens · Session Recovery Desk</title>
+  <style>
+    :root { color-scheme: dark; --ink: #f7f8ff; --muted: #a9b0c9; --bg: #0b0f1b; --panel: #151c31; --line: #303b5f; --accent: #b9a7ff; --cyan: #76e4e8; --good: #8cf0ba; --warn: #ffd580; --danger: #ffaaa9; --shadow: 0 26px 90px #03050d99; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; color: var(--ink); background: radial-gradient(circle at 85% 7%, #5c4eb644, transparent 36rem), var(--bg); font: 16px/1.55 Inter, ui-sans-serif, system-ui, sans-serif; }
+    a { color: var(--accent); }
+    .wrap { width: min(1160px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 88px; }
+    .eyebrow { color: var(--accent); font: 700 .75rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { max-width: 840px; margin: 12px 0 16px; font-size: clamp(2.5rem, 7vw, 5.9rem); line-height: .93; letter-spacing: -.075em; }
+    h2 { margin: 0 0 10px; font-size: clamp(1.45rem, 3vw, 2.3rem); letter-spacing: -.04em; }
+    h3 { margin: 0 0 5px; font-size: 1rem; }
+    p { color: var(--muted); max-width: 72ch; }
+    code { color: #e7e0ff; }
+    .hero { display: grid; grid-template-columns: 1.03fr .97fr; gap: 30px; align-items: end; }
+    .lede { font-size: 1.12rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+    .chip { border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; color: var(--muted); font: .78rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .chip.accent { border-color: #b9a7ff66; color: var(--accent); }
+    .panel { margin-top: 30px; padding: 25px; border: 1px solid var(--line); border-radius: 24px; background: linear-gradient(145deg, #1b2542dd, #11172add); box-shadow: var(--shadow); }
+    .panel-head { display: flex; justify-content: space-between; gap: 16px; align-items: start; margin-bottom: 20px; }
+    .stamp { color: var(--good); font: 700 .75rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+    svg { display: block; width: 100%; height: auto; }
+    .search-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin-bottom: 16px; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: .82rem; }
+    input, select, button { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #0c1223; color: var(--ink); font: .86rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+    input { min-width: min(390px, 100%); }
+    button { border-color: #b9a7ff66; color: var(--accent); cursor: pointer; }
+    button:hover, button:focus-visible, input:focus-visible, select:focus-visible { border-color: var(--accent); outline: 2px solid #b9a7ff55; outline-offset: 2px; }
+    .thread-list { display: grid; gap: 10px; }
+    .thread { display: grid; grid-template-columns: 82px 1fr auto; gap: 14px; align-items: center; padding: 15px 16px; border: 1px solid var(--line); border-radius: 16px; background: #0d1427aa; }
+    .thread[hidden] { display: none; }
+    .source { font: 700 .76rem ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .1em; text-transform: uppercase; }
+    .source.codex { color: var(--accent); } .source.claude { color: var(--cyan); } .source.hermes { color: var(--warn); }
+    .thread strong { display: block; } .thread small { color: var(--muted); }
+    .badges { display: flex; flex-wrap: wrap; justify-content: end; gap: 6px; }
+    .badge { border: 1px solid var(--line); border-radius: 999px; padding: 4px 8px; color: var(--muted); font: .7rem ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .badge.good { border-color: #8cf0ba66; color: var(--good); } .badge.partial { border-color: #ffd58066; color: var(--warn); } .badge.absent { border-color: #ffaaa966; color: var(--danger); }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .card-box { padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: #0d1427aa; }
+    .card-box + .card-box { margin-top: 12px; }
+    .claim { display: grid; grid-template-columns: auto 1fr; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .claim:first-of-type { border-top: 0; }
+    .claim-tag { align-self: start; border-radius: 6px; padding: 3px 6px; font: 700 .67rem ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; }
+    .claim-tag.historical { background: #3b315c; color: var(--accent); } .claim-tag.verified { background: #173f37; color: var(--good); }
+    .claim p { margin: 0; font-size: .9rem; }
+    .bundle { display: grid; gap: 10px; margin-top: 18px; }
+    .bundle-line { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; font: .8rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .bundle-line span { color: var(--muted); } .bundle-line strong { color: var(--good); } .bundle-line strong.mismatch { color: var(--danger); }
+    .command { position: relative; margin-top: 14px; padding: 15px 70px 15px 17px; border: 1px solid var(--line); border-radius: 14px; background: #080b14; color: #e7e0ff; font: .84rem/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+    button.copy { position: absolute; top: 9px; right: 9px; padding: 7px 9px; font-size: .72rem; }
+    details { margin-top: 18px; color: var(--muted); } summary { color: var(--ink); cursor: pointer; font-weight: 700; }
+    .foot { display: flex; justify-content: space-between; gap: 18px; margin-top: 26px; color: var(--muted); font-size: .9rem; }
+    @media (max-width: 780px) { .hero, .two-col { grid-template-columns: 1fr; } .thread { grid-template-columns: 1fr; gap: 7px; } .badges { justify-content: start; } .panel { padding: 18px; } .foot { flex-direction: column; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero" aria-labelledby="title">
+      <div>
+        <div class="eyebrow">ChatLens · visual field guide</div>
+        <h1 id="title">Find the lost thread. Keep the uncertainty.</h1>
+        <p class="lede">ChatLens turns local Codex, Claude Code, and Hermes stores into searchable context, bounded work cards, and integrity-aware recovery artifacts. It is a tiny flashlight for agent archaeology.</p>
+        <div class="chips"><span class="chip accent">fictional browser data</span><span class="chip">local only</span><span class="chip">no sibling checkout</span><span class="chip">claims ≠ proof</span></div>
+      </div>
+      <svg viewBox="0 0 540 315" role="img" aria-labelledby="flow-title flow-desc">
+        <title id="flow-title">ChatLens recovery flow</title><desc id="flow-desc">Codex, Claude, and Hermes stores flow into a searchable index, a bounded card, and a verified bundle.</desc>
+        <rect width="540" height="315" rx="24" fill="#090d18" stroke="#3d4a73"/>
+        <path d="M132 72h80m-80 86h80m-80 86h80m96-129h82m-82 0v86h82" fill="none" stroke="#b9a7ff" stroke-width="3" stroke-linecap="round"/><path d="m204 61 13 11-13 11m0 64 13 11-13 11m0 75 13 11-13 11m176-159 13 11-13 11" fill="none" stroke="#b9a7ff" stroke-width="3"/>
+        <g font-family="ui-monospace,monospace" text-anchor="middle"><rect x="24" y="44" width="108" height="56" rx="13" fill="#29244a"/><text x="78" y="78" fill="#f7f8ff" font-size="13">CODEX</text><rect x="24" y="130" width="108" height="56" rx="13" fill="#163f4a"/><text x="78" y="164" fill="#76e4e8" font-size="13">CLAUDE</text><rect x="24" y="216" width="108" height="56" rx="13" fill="#4a391d"/><text x="78" y="250" fill="#ffd580" font-size="13">HERMES</text><rect x="212" y="115" width="118" height="70" rx="15" fill="#202b4c"/><text x="271" y="147" fill="#f7f8ff" font-size="13">INDEX</text><text x="271" y="168" fill="#a9b0c9" font-size="10">coverage + freshness</text><rect x="390" y="80" width="126" height="70" rx="15" fill="#173d38"/><text x="453" y="112" fill="#8cf0ba" font-size="13">WORK CARD</text><text x="453" y="133" fill="#a9b0c9" font-size="10">claims / inputs</text><rect x="390" y="195" width="126" height="70" rx="15" fill="#3b315c"/><text x="453" y="227" fill="#b9a7ff" font-size="13">BUNDLE</text><text x="453" y="248" fill="#a9b0c9" font-size="10">match / mismatch</text></g>
+      </svg>
+    </section>
+
+    <section class="panel" aria-labelledby="search-title">
+      <div class="panel-head"><div><div class="eyebrow">01 / source-aware search</div><h2 id="search-title">Search the index without pretending it is live.</h2></div><div class="stamp">● INDEX REFRESHED 2M AGO</div></div>
+      <div class="search-row"><label for="thread-search">Fictional session search<input id="thread-search" type="search" placeholder="Try: release parser" autocomplete="off"></label><button id="clear-search" type="button">clear</button><span id="search-status" class="stamp" role="status" aria-live="polite">Showing 3 illustrative sessions.</span></div>
+      <div class="thread-list" id="thread-list">
+        <article class="thread" data-search="codex release parser" data-source="codex"><span class="source codex">codex</span><div><strong>Find the parser and explain the release workflow.</strong><small>codex:demo-release-01 · updated 2 minutes ago</small></div><div class="badges"><span class="badge good">coverage complete</span><span class="badge">fresh 2m</span></div></article>
+        <article class="thread" data-search="claude recovery trace" data-source="claude"><span class="source claude">claude</span><div><strong>Recover the redaction boundary for the trace handoff.</strong><small>claude:demo-trace-02 · updated 11 minutes ago</small></div><div class="badges"><span class="badge partial">coverage partial</span><span class="badge">fresh 11m</span></div></article>
+        <article class="thread" data-search="hermes handoff gate" data-source="hermes"><span class="source hermes">hermes</span><div><strong>Check the handoff gate before continuing the task.</strong><small>hermes:demo-handoff-03 · inventory unavailable</small></div><div class="badges"><span class="badge absent">source absent</span><span class="badge">fresh unknown</span></div></article>
+      </div>
+      <details><summary>Why are coverage and freshness separate?</summary><p>A cached index can be complete for the last refresh and still be stale now. ChatLens keeps source availability, parse completeness, and refresh timing visible so “not found” does not become a magic trick.</p></details>
+    </section>
+
+    <section class="panel" aria-labelledby="card-title">
+      <div class="panel-head"><div><div class="eyebrow">02 / bounded work card</div><h2 id="card-title">A claim can travel with context without dressing up as proof.</h2></div><div class="stamp">● INPUT STATUS PARTIAL</div></div>
+      <div class="two-col">
+        <div class="card-box"><h3>Recover the next useful move</h3><p>Source: <code>claude:demo-trace-02</code> · mode: brief · bounded text</p><div class="claim"><span class="claim-tag historical">CLAIM</span><p>The transcript says the redaction pass completed. <strong>Not verified.</strong></p></div><div class="claim"><span class="claim-tag historical">CLAIM</span><p>A tool call mentions a timeout investigation.</p></div></div>
+        <div class="card-box"><h3>Verification boundary</h3><p>Current repository, owner, and runtime state still need a fresh check.</p><div class="claim"><span class="claim-tag verified">STATUS</span><p>No verified outcome attached to this historical card.</p></div><div class="claim"><span class="claim-tag verified">INPUT</span><p>Partial source coverage; missing native reasoning stays missing.</p></div></div>
+      </div>
+      <details><summary>What does this page prove?</summary><p>Only that the UI keeps historical transcript claims separate from verified outcomes. Every row above is fictional browser data; the page never reads a private session store or calls the ChatLens CLI.</p></details>
+    </section>
+
+    <section class="panel" aria-labelledby="bundle-title">
+      <div class="panel-head"><div><div class="eyebrow">03 / optional bundle readback</div><h2 id="bundle-title">Pack a bounded snapshot. Refuse a changed source.</h2></div><div class="stamp">● SYNTHETIC PREVIEW</div></div>
+      <p>Use the control to preview the two honest outcomes of a fictional recovery bundle. A match is content identity at capture time; a mismatch is a stop sign.</p>
+      <label for="bundle-state">Synthetic source state<select id="bundle-state"><option value="matched">matched source</option><option value="mismatch">changed source</option></select></label>
+      <div class="bundle" aria-live="polite"><div class="bundle-line"><span>snapshot_sha256</span><strong id="snapshot-digest">a91f…20e4</strong></div><div class="bundle-line"><span>source_state</span><strong id="source-state">matched · continue with caution</strong></div><div class="bundle-line"><span>raw transcript</span><strong>not copied</strong></div></div>
+      <div class="command"><code>chatlens bundle codex:SESSION_ID --out recovery.json --json
+chatlens verify-bundle recovery.json --json</code><button class="copy" type="button" data-copy="chatlens bundle codex:SESSION_ID --out recovery.json --json\nchatlens verify-bundle recovery.json --json">copy</button></div>
+      <p id="copy-status" role="status" aria-live="polite"></p>
+      <div class="foot"><span>Real install: Python 3.11+ · v0.4.0 · no sibling repo.</span><a href="https://github.com/jonah-ux/chatlens#readme">Back to README</a></div>
+    </section>
+
+    <section class="panel" aria-labelledby="install-title">
+      <div class="eyebrow">04 / real CLI path</div><h2 id="install-title">Run the real thing in two clean moves.</h2>
+      <p>The guide is illustrative. These commands are the actual independent install and tagged-checkout demo paths.</p>
+      <div class="command"><code>python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install 'git+https://github.com/jonah-ux/chatlens.git@v0.4.0'
+chatlens --version</code><button class="copy" type="button" data-copy="python3 -m venv .venv\n. .venv/bin/activate\npython3 -m pip install 'git+https://github.com/jonah-ux/chatlens.git@v0.4.0'\nchatlens --version">copy</button></div>
+      <div class="command"><code>git clone --branch v0.4.0 https://github.com/jonah-ux/chatlens.git
+cd chatlens
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install .
+python3 demos/demo.py</code><button class="copy" type="button" data-copy="git clone --branch v0.4.0 https://github.com/jonah-ux/chatlens.git\ncd chatlens\npython3 -m venv .venv\n. .venv/bin/activate\npython3 -m pip install .\npython3 demos/demo.py">copy</button></div>
+      <p id="install-status" role="status" aria-live="polite"></p>
+      <div class="foot"><span>Demo scope is synthetic fixture data only; no private home directories or sibling repos are required.</span><a href="https://github.com/jonah-ux/chatlens">GitHub repository</a></div>
+    </section>
+  </main>
+  <script>
+    const rows = [...document.querySelectorAll('.thread')];
+    const search = document.getElementById('thread-search');
+    const status = document.getElementById('search-status');
+    function filterRows() {
+      const query = search.value.trim().toLowerCase();
+      const visible = rows.filter((row) => !query || row.dataset.search.includes(query));
+      rows.forEach((row) => { row.hidden = !visible.includes(row); });
+      status.textContent = `Showing ${visible.length} illustrative session${visible.length === 1 ? '' : 's'}.`;
+    }
+    search.addEventListener('input', filterRows);
+    document.getElementById('clear-search').addEventListener('click', () => { search.value = ''; filterRows(); search.focus(); });
+    document.getElementById('bundle-state').addEventListener('change', (event) => {
+      const mismatch = event.target.value === 'mismatch';
+      const state = document.getElementById('source-state');
+      const digest = document.getElementById('snapshot-digest');
+      state.textContent = mismatch ? 'mismatch · stop and re-read' : 'matched · continue with caution';
+      state.classList.toggle('mismatch', mismatch);
+      digest.textContent = mismatch ? 'a91f…20e4 ≠ 4c72…9bd1' : 'a91f…20e4';
+    });
+    document.querySelectorAll('[data-copy]').forEach((button) => button.addEventListener('click', async () => {
+      const statusNode = button.closest('.panel').querySelector('[role="status"]');
+      try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = 'copied'; statusNode.textContent = 'Command copied. The context goblin stays in its lane.'; }
+      catch { statusNode.textContent = 'Copy was unavailable; select the command manually.'; }
+    }));
+  </script>
+</body>
+</html>
