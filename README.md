@@ -35,6 +35,15 @@ Alternatively, install a wheel from [GitHub Releases](https://github.com/jonah-u
 The current stable release is **v0.4.0**. It includes recovery snapshots, redacted trace handoff, and the `ai-work-evidence/v1` projection shown below; the commands in this README are pinned to that release so a fresh install does not silently run an older artifact.
 Chatlens is standalone by default: no sibling Jonah-UX checkout, Fleet checkout, companion repository, API key, daemon, or external service is required. Trace readers are optional consumers of the redacted envelope; they are not install-time dependencies.
 
+### Verify a release
+
+Releases after v0.4.0 carry signed GitHub build provenance for the wheel and sdist. To check that a downloaded file was built by this repository's release workflow:
+
+```console
+gh attestation verify chatlens-*.whl --repo jonah-ux/chatlens
+```
+
+Each release also ships `SHA256SUMS`.
 
 ## Quick start
 

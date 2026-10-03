@@ -13,6 +13,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   publish:
@@ -52,6 +54,19 @@ jobs:
           .release-sdist/bin/python -m pip install dist/*.tar.gz
           .release-sdist/bin/chatlens --version
           .release-sdist/bin/chatlens --help
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/*.whl
+            dist/*.tar.gz
+      - name: Upload distributions for PyPI
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
       - name: Publish prerelease assets
         env:
           GH_TOKEN: ${{ github.token }}
@@ -61,3 +76,19 @@ jobs:
             --verify-tag \
             --title "${{ github.repository }} ${{ github.ref_name }}" \
             --generate-notes
+
+  pypi:
+    # Off until PyPI trusted publishing is configured for this repository.
+    # Enable by setting the repository variable PYPI_PUBLISH to "true".
+    if: vars.PYPI_PUBLISH == 'true'
+    needs: publish
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
