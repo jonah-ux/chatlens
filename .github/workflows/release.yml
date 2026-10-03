@@ -21,6 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Refresh annotated release tag
+        run: git fetch --force origin "refs/tags/${{ inputs.release_tag || github.ref_name }}:refs/tags/${{ inputs.release_tag || github.ref_name }}"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -29,13 +33,20 @@ jobs:
           RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
         run: |
           python - <<'PY'
-          import os, tomllib
+          import os, subprocess, tomllib
           tag = os.environ["RELEASE_TAG"]
           with open("pyproject.toml", "rb") as handle:
               version = tomllib.load(handle)["project"]["version"]
           if tag != f"v{version}":
               raise SystemExit(f"tag {tag} does not match project version {version}")
-          print(f"Release identity verified: {tag}")
+          tag_type = subprocess.check_output(["git", "cat-file", "-t", f"refs/tags/{tag}"], text=True).strip()
+          if tag_type != "tag":
+              raise SystemExit("release tag must be annotated")
+          tag_commit = subprocess.check_output(["git", "rev-parse", f"refs/tags/{tag}^{{}}"], text=True).strip()
+          head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+          if tag_commit != head:
+              raise SystemExit("release tag does not identify the checked-out HEAD")
+          print(f"Release identity verified: {tag} -> {head}")
           PY
       - name: Build distributions and checksums
         run: |

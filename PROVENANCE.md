@@ -13,3 +13,10 @@ from Jonah Helland's MIT-licensed ChatLens kit in jonah-ux/fleet, initially
 introduced 2026-09-24. Public source-history review for this bundle remains
 pending; see docs/releasing.md before publishing. Other project material was
 written for this standalone distribution.
+
+The release workflow now fetches and verifies an annotated version tag points at
+the checked-out commit before building a wheel and source archive. The
+`scripts/audit_public_surface.py` command reports dependency, license,
+release-marker, high-signal privacy, and optional checksum observations. It is
+not complete DLP or a security certification; missing distribution inputs stay
+`unavailable`.
