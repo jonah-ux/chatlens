@@ -69,7 +69,7 @@ The demo ends with `demo_scope=synthetic_fixture_only`; its transcripts are deli
 
 ### One-minute recovery loop
 
-Try the full local story with synthetic data:
+From the installed tagged checkout below, try the full local story with synthetic data:
 
 ```console
 python3 demos/demo.py
@@ -85,6 +85,9 @@ To try all three readers without using your own history:
 ```console
 git clone --branch v0.4.0 https://github.com/jonah-ux/chatlens.git
 cd chatlens
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install .
 python3 demos/demo.py
 ```
 
