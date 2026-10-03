@@ -6,7 +6,7 @@
 
 Chatlens reads Codex, Claude Code, and Hermes conversation stores, builds a local searchable index, and turns a session into a compact work card. Use it when you remember an agent solving a problem but have lost the conversation—or when the next agent needs evidence to continue.
 
-Python 3.11+ · Zero runtime dependencies · MIT · Local only · Early release
+Python 3.11+ · Zero runtime dependencies · MIT · Local only · v0.4.0
 
 ```console
 chatlens search 'release parser' --json
@@ -25,14 +25,36 @@ Install the versioned GitHub release in a virtual environment:
 ```console
 python3 -m venv .venv
 . .venv/bin/activate
-python3 -m pip install 'git+https://github.com/jonah-ux/chatlens.git@v0.3.0'
+python3 -m pip install 'git+https://github.com/jonah-ux/chatlens.git@v0.4.0'
 chatlens --version
 chatlens --help
 ```
 
-Alternatively, install a wheel from [GitHub Releases](https://github.com/jonah-ux/chatlens/releases). Python must provide SQLite FTS5. No API key, model account, or daemon is needed. CI covers Linux and macOS for the synthetic fixtures, cache contract, and installed CLI. Windows is currently outside the verified support boundary because the private-cache contract and several source fixtures depend on POSIX permission and filesystem semantics; real user stores are never used in CI.
+Alternatively, install the `chatlens-0.4.0-py3-none-any.whl` wheel from [GitHub Releases](https://github.com/jonah-ux/chatlens/releases). Python must provide SQLite FTS5. No API key, model account, daemon, sibling Jonah-UX checkout, or companion repository is needed. CI covers Linux and macOS for the synthetic fixtures, cache contract, and installed CLI. Windows is currently outside the verified support boundary because the private-cache contract and several source fixtures depend on POSIX permission and filesystem semantics; real user stores are never used in CI.
 
-The current release candidate is **v0.3.0**. It includes recovery snapshots and the redacted trace handoff API shown below; the commands in this README are pinned to that release so a fresh install does not silently run an older artifact.
+The current public release is **v0.4.0**. It includes recovery snapshots, the redacted trace handoff API, and the shared work-evidence projection shown below; the commands in this README are pinned to that release so a fresh install does not silently run an older artifact.
+
+## One-minute walkthrough
+
+The memorable path is **find it → read it → pack it → verify it**:
+
+```console
+# 1. Find local sessions without opening a provider account.
+chatlens list --json --limit 10
+
+# 2. Build or refresh the private local index, then search it.
+chatlens index --json --fail-on-error
+chatlens search 'release parser' --json
+
+# 3. Read a bounded work card for the session you choose.
+chatlens card codex:SESSION_ID --json
+
+# 4. Pack a compact recovery snapshot and verify its source identity.
+chatlens bundle codex:SESSION_ID --out recovery.json --json
+chatlens verify-bundle recovery.json --json
+```
+
+Every step runs from this repository's installed CLI. If a provider store is absent or only partly readable, ChatLens reports that status explicitly; it does not need another open-source repo to fill the gap.
 
 ## Quick start
 
@@ -68,12 +90,15 @@ The demo ends with `demo_scope=synthetic_fixture_only`; its transcripts are deli
 To try all three readers without using your own history:
 
 ```console
-git clone --branch v0.3.0 https://github.com/jonah-ux/chatlens.git
+git clone --branch v0.4.0 https://github.com/jonah-ux/chatlens.git
 cd chatlens
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install .
 python3 demos/demo.py
 ```
 
-The demo creates temporary synthetic stores and exercises the installed package. Every transcript and reported test result in it is synthetic.
+The demo creates temporary synthetic stores and exercises the installed package. Every transcript and reported test result in it is synthetic. The clone, install, and demo are self-contained; no other Jonah-UX repository, local Fleet checkout, or external service is required.
 
 For a portable handoff example that does not inspect any real transcript store:
 
@@ -130,11 +155,12 @@ raw session identifier are never copied. The header carries the source identity 
 the redacted event digest, explicit bounds, and an envelope digest over the header and
 rows. The output is a new owner-only file and is never overwritten.
 
-The JSONL shape is intentionally simple enough for a separate local trace reader to
+The JSONL shape is intentionally simple enough for any separate local trace reader to
 consume: the first line is a `chatlens-trace-envelope/v1` header and each later line is
 an event object with `type`, `name`, `timestamp`, `message`, and `extra`. The envelope
-can therefore be handed to Agent Trace Lite or another JSONL timeline tool without
-giving that tool access to the native Codex, Claude Code, or Hermes store. Run
+can therefore be handed to Agent Trace Lite, another JSONL timeline tool, or simply
+kept as a portable artifact without giving any consumer access to the native Codex,
+Claude Code, or Hermes store. Run
 `trace-import` on the receiving side to validate the envelope digest and bounds before
 rendering it. Complete captures return exit code 0; a changed or tampered envelope
 returns exit code 1; malformed, partial, or unavailable evidence returns exit code 3.
