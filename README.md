@@ -199,6 +199,22 @@ New cache directories and databases use owner-only permissions (700 and 600). In
 
 Reads are bounded to 64 MiB for each JSONL file, 200,000 events, and 1,000,000 retained text characters. Cards and rendered outputs can contain less text. Limits and malformed records are reported as partial evidence. Missing native reasoning stays missing; encrypted Codex reasoning is not decrypted. Token budgets are character-based estimates, not model token counts.
 
+## Public release audit
+
+The checked-in `chatlens-public-audit/v1` receipt makes the public release surface inspectable:
+
+```console
+python scripts/audit_public_surface.py --json
+python scripts/audit_public_surface.py --dist-dir ./dist --json
+```
+
+It inventories declared build/runtime dependencies, checks the MIT license and annotated-tag
+release markers, scans tracked text files for a small set of high-signal credential patterns, and
+optionally compares wheel/source-archive bytes with `SHA256SUMS`. Without a distribution directory,
+artifact state is reported as `unavailable`. The audit is a release aid; it does not claim complete
+DLP, security certification, reproducible builds across machines, deployment, adoption, or
+production readiness.
+
 ## Contribute
 
 ```console
