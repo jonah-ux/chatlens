@@ -1,6 +1,6 @@
 """ChatLens: offline readers and search for local AI coding-agent transcripts."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 # Portable recovery-to-trace handoff primitives are part of the public library
 # surface as well as the CLI. Native adapters remain internal implementation

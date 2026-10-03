@@ -2,6 +2,11 @@
 
 All notable changes to ChatLens are recorded here.
 
+## [0.4.0] — shared work evidence projection
+
+- Add `evidence-export` and the dependency-free `ai-work-evidence/v1` projection for validated redacted traces.
+- Preserve complete versus partial input status and keep event text, native IDs, and paths outside the shared record.
+
 ## [0.3.0] — portable trace handoff
 
 - Add `trace-export` and `trace-import` with `chatlens-trace-envelope/v1` and
