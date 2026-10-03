@@ -1,0 +1,10 @@
+{
+  "schema": "agent-systems-lab-consumer-conformance/v1",
+  "owner_corpus": "forgeyard/conformance",
+  "cases": [
+    {"name": "complete-trace", "status": "observed"},
+    {"name": "partial-trace", "status": "unknown"},
+    {"name": "tampered-trace", "status": "rejected"},
+    {"name": "unknown-schema", "status": "rejected"}
+  ]
+}
