@@ -1,10 +1,18 @@
 {
-  "schema": "agent-systems-lab-consumer-conformance/v1",
-  "owner_corpus": "forgeyard/conformance",
+  "schema": "agent-systems-lab-consumer-conformance/v2",
+  "contract": "ai-work-evidence/v1",
+  "owner_corpus": {
+    "manifest_url": "https://github.com/jonah-ux/forgeyard/blob/d6feb5b0ec0f7ccb4fb7f56939e8513972b0855d/conformance/manifest.json",
+    "commit": "d6feb5b0ec0f7ccb4fb7f56939e8513972b0855d",
+    "manifest_sha256": "6fe5fc6c5993f161111110971927b07e7db4b7d9f01eac352afd173ce31e7924"
+  },
   "cases": [
-    {"name": "complete-trace", "status": "observed"},
-    {"name": "partial-trace", "status": "unknown"},
-    {"name": "tampered-trace", "status": "rejected"},
-    {"name": "unknown-schema", "status": "rejected"}
+    {"name": "valid-observed", "valid": true, "status": "observed", "fixture": "complete-trace"},
+    {"name": "status-unknown", "valid": true, "status": "unknown", "fixture": "partial-trace"},
+    {"name": "status-failed", "valid": true, "status": "failed", "fixture": "validator-only"},
+    {"name": "unknown-version", "valid": false, "mutation": "schema"},
+    {"name": "unsafe-artifact", "valid": false, "mutation": "artifact-name"},
+    {"name": "bad-hash", "valid": false, "mutation": "artifact-sha256"},
+    {"name": "malformed", "valid": false, "mutation": "root"}
   ]
 }
