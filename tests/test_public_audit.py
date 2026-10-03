@@ -82,3 +82,17 @@ class PublicAuditTests(unittest.TestCase):
             self.assertEqual(module._secret_scan()["state"], "blocked")
         finally:
             module._tracked_files = original
+
+    def test_public_audit_blocks_structurally_invalid_project_metadata(self):
+        module = _module()
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            original_root = module.ROOT
+            try:
+                module.ROOT = root
+                (root / "pyproject.toml").write_text('project = "malformed"\\n[build-system]\\nrequires = []\\n', encoding="utf-8")
+                self.assertEqual(module._dependency_inventory()["state"], "blocked")
+            finally:
+                module.ROOT = original_root
