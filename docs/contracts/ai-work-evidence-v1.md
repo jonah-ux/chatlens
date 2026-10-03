@@ -9,6 +9,11 @@ Complete trace input becomes `observed`; a valid partial trace becomes `unknown`
 does not claim ownership, liveness, deployment, or a provider outcome. Forgeyard can consume the
 result with its `compose` command without installing ChatLens or opening a native transcript store.
 
+ChatLens's consumer conformance fixture is under
+[`tests/fixtures/agent-systems-lab/conformance.json`](../../tests/fixtures/agent-systems-lab/conformance.json).
+It mirrors the Forgeyard-owned corpus classifications for complete, partial, tampered, and
+unknown-version inputs without importing Forgeyard at runtime.
+
 Example:
 
 ```bash
