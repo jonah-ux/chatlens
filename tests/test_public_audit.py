@@ -38,3 +38,15 @@ class PublicAuditTests(unittest.TestCase):
                     module._tracked_files = original
         self.assertEqual(result["state"], "blocked")
         self.assertEqual(result["findings"], [{"path": "fixture.txt", "class": "private_key"}])
+
+    def test_public_audit_blocks_checksum_mismatch(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            dist = Path(directory)
+            (dist / "demo.whl").write_bytes(b"wheel")
+            (dist / "demo.tar.gz").write_bytes(b"sdist")
+            (dist / "SHA256SUMS").write_text("0" * 64 + "  demo.whl\n" + "1" * 64 + "  demo.tar.gz\n", encoding="utf-8")
+            report = _module().audit(dist)
+        self.assertEqual(report["artifact_audit"]["state"], "blocked")
+        self.assertEqual(report["result"], "blocked")
