@@ -8,6 +8,8 @@ All notable changes to ChatLens are recorded here.
   `chatlens-trace-import/v1` for bounded, redacted JSONL handoffs to local trace
   readers. Canonical event rows and the header are bound with SHA-256 digests;
   tampered, malformed, or partial evidence fails closed.
+- Add the dependency-free `ai-work-evidence/v1` projection for validated redacted traces;
+  it carries artifact and provenance hashes without copying event text or native identifiers.
 - Expose the trace envelope helpers through the public `chatlens` package and
   add a synthetic recovery roundtrip demo that proves redaction and integrity
   without reading a native transcript store.

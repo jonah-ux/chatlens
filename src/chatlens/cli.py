@@ -24,6 +24,7 @@ from .render import render
 from .snapshot import build_snapshot, read_snapshot, validate_snapshot, verify_snapshot, write_snapshot
 from .trace import (build_trace, envelope_lines, export_summary, import_report,
                     read_trace, write_trace)
+from .evidence import build_work_evidence, write_work_evidence
 
 ADAPTERS = {"codex": codex, "claude": claude, "hermes": hermes}
 MAX_EVENTS = 200_000
@@ -446,6 +447,29 @@ def cmd_trace_import(args) -> int:
     return 1
 
 
+def cmd_evidence_export(args) -> int:
+    """Project an existing redacted trace into the shared evidence contract."""
+    try:
+        envelope = read_trace(args.path)
+        document = build_work_evidence(
+            envelope,
+            evidence_id=args.evidence_id,
+            subject=args.subject,
+            summary=args.summary,
+            created_at=args.created_at,
+            fixture_id=args.fixture_id,
+        )
+        write_work_evidence(args.out, document)
+    except (OSError, ValueError, TypeError) as exc:
+        _error(str(exc), 3)
+    result = {"schema": "chatlens-evidence-export/v1", "path": str(args.out), "evidence": document}
+    if args.json:
+        _json(result)
+    else:
+        print(f"wrote {args.out} ({document['status']})")
+    return 3 if document["status"] == "unknown" else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="chatlens", description="Read local Codex, Claude Code, and Hermes chats offline.")
     parser.add_argument("--version", action="version", version=f"chatlens {__version__}")
@@ -503,6 +527,17 @@ def build_parser() -> argparse.ArgumentParser:
     trace_import.add_argument("path", metavar="TRACE")
     trace_import.add_argument("--json", action="store_true", help="emit versioned JSON")
     trace_import.set_defaults(func=cmd_trace_import)
+
+    evidence_export = sub.add_parser("evidence-export", help="project a redacted trace into ai-work-evidence/v1")
+    evidence_export.add_argument("path", metavar="TRACE")
+    evidence_export.add_argument("--id", required=True, dest="evidence_id", help="stable synthetic evidence identifier")
+    evidence_export.add_argument("--subject", required=True)
+    evidence_export.add_argument("--summary", required=True)
+    evidence_export.add_argument("--created-at", required=True, dest="created_at", help="fixed RFC 3339 UTC timestamp ending in Z")
+    evidence_export.add_argument("--fixture-id", required=True, dest="fixture_id")
+    evidence_export.add_argument("--out", required=True, metavar="PATH", help="write a new owner-only evidence JSON file")
+    evidence_export.add_argument("--json", action="store_true", help="emit the export result as JSON")
+    evidence_export.set_defaults(func=cmd_evidence_export)
     return parser
 
 
