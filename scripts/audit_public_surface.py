@@ -173,6 +173,7 @@ def audit(dist_dir: Path | None = None) -> dict[str, Any]:
     privacy = _secret_scan()
     artifacts = _artifact_audit(dist_dir)
     static_pass = all(item.get("state") == "pass" for item in (dependency, license_info, provenance, privacy))
+    artifact_pass = artifacts.get("state") in {"pass", "unavailable"}
     return {
         "schema": SCHEMA,
         "source": {"revision": _revision(), "python": platform.python_version()},
@@ -181,7 +182,7 @@ def audit(dist_dir: Path | None = None) -> dict[str, Any]:
         "release_provenance": provenance,
         "privacy_scan": privacy,
         "artifact_audit": artifacts,
-        "result": "pass" if static_pass else "blocked",
+        "result": "pass" if static_pass and artifact_pass else "blocked",
         "limits": [
             "secret scanning uses high-signal patterns and is not a complete semantic DLP system",
             "artifact checks are unavailable without an explicit dist directory",
