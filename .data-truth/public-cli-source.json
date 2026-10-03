@@ -8,7 +8,7 @@
     },
     {
       "path": "src/chatlens/cli.py",
-      "sha256": "5d64bd55f85bcca6cea1b39b16406c81ff2bb91a0782711fda34653d79e4b544"
+      "sha256": "e7f2ed0cd0bc377cd5f3150dee8454b28a258754852d230639b14686d07cd100"
     },
     {
       "path": "tests/test_cli.py",
@@ -24,7 +24,7 @@
     },
     {
       "path": "src/chatlens/__init__.py",
-      "sha256": "e1e3decfba8c7b0a80764dc9ff6f89f182fc8d5891fc780d1dedd54f5d45447a"
+      "sha256": "82484842b1cbae10c468272446aa6b85df6f3ac78d25386a6eb9cc2916cbfccd"
     }
   ],
   "facts": [
@@ -32,11 +32,11 @@
   ],
   "why_trace": {
     "verdict": "GENUINE_BUG",
-    "root_cause": "The initial standalone caller dropped native parse errors, retained stale indexed sessions, and created a readable transcript cache. Source integration now reports partial evidence, replaces selected inventories, and enforces private cache permissions.",
+    "root_cause": "The public source contract manifest still points at the pre-0.4.0 CLI and package source hashes, so the repository push gate cannot distinguish a current release from stale evidence.",
     "evidence": [
-      "tests/test_evidence.py exercises corrupt inventories, partial records, stale cache removal, source immutability, read bounds, native session identity, and private cache/symlink refusal",
-      "tests/test_cli.py exercises synthetic Codex, Claude Code, and Hermes stores",
-      "Installed wheel and sdist synthetic demos passed in fresh environments"
+      "GitHub main is tagged v0.4.0 while the manifest source_commit is 53f89d3e2a6c22c676691d4cc7e06ce74cc28ff5",
+      "data-truth source hashes for src/chatlens/cli.py and src/chatlens/__init__.py do not match the current committed blobs",
+      "Reanchoring keeps the existing data path, fact, and documentation inventory while binding it to the exact release head"
     ]
   },
   "documentation": [
@@ -45,5 +45,5 @@
     "PROVENANCE.md",
     "src/chatlens/trace.py"
   ],
-  "source_commit": "53f89d3e2a6c22c676691d4cc7e06ce74cc28ff5"
+  "source_commit": "8ec54ef89d201acdc0de2fe2ff3205b58f0273bc"
 }

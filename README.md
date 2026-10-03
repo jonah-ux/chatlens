@@ -25,14 +25,16 @@ Install the versioned GitHub release in a virtual environment:
 ```console
 python3 -m venv .venv
 . .venv/bin/activate
-python3 -m pip install 'git+https://github.com/jonah-ux/chatlens.git@v0.3.0'
+python3 -m pip install 'git+https://github.com/jonah-ux/chatlens.git@v0.4.0'
 chatlens --version
 chatlens --help
 ```
 
 Alternatively, install a wheel from [GitHub Releases](https://github.com/jonah-ux/chatlens/releases). Python must provide SQLite FTS5. No API key, model account, or daemon is needed. CI covers Linux and macOS for the synthetic fixtures, cache contract, and installed CLI. Windows is currently outside the verified support boundary because the private-cache contract and several source fixtures depend on POSIX permission and filesystem semantics; real user stores are never used in CI.
 
-The current release candidate is **v0.3.0**. It includes recovery snapshots and the redacted trace handoff API shown below; the commands in this README are pinned to that release so a fresh install does not silently run an older artifact.
+The current stable release is **v0.4.0**. It includes recovery snapshots, redacted trace handoff, and the `ai-work-evidence/v1` projection shown below; the commands in this README are pinned to that release so a fresh install does not silently run an older artifact.
+Chatlens is standalone by default: no sibling Jonah-UX checkout, Fleet checkout, companion repository, API key, daemon, or external service is required. Trace readers are optional consumers of the redacted envelope; they are not install-time dependencies.
+
 
 ## Quick start
 
@@ -65,10 +67,23 @@ The disposable demo creates synthetic Codex, Claude Code, and Hermes stores, the
 
 The demo ends with `demo_scope=synthetic_fixture_only`; its transcripts are deliberately synthetic and never count as live verification. That boundary is part of the product contract.
 
+### One-minute recovery loop
+
+Try the full local story with synthetic data:
+
+```console
+python3 demos/demo.py
+# discover -> index -> search -> read -> card
+python3 demos/recovery_trace_roundtrip.py
+# redact -> export -> verify
+```
+
+You should see a complete synthetic run, an explicit `demo_scope=synthetic_fixture_only` boundary, and a redacted trace envelope whose digest verifies without opening a native session store.
+
 To try all three readers without using your own history:
 
 ```console
-git clone --branch v0.3.0 https://github.com/jonah-ux/chatlens.git
+git clone --branch v0.4.0 https://github.com/jonah-ux/chatlens.git
 cd chatlens
 python3 demos/demo.py
 ```
