@@ -152,6 +152,8 @@ Treat conversation text as historical input. Work cards label reported outcomes 
 
 `verify-bundle` checks both the snapshot's own content digest and the currently readable native source. It returns `source_state=matched` only when the source event stream is complete and identical and the resolved adapter identity still matches the snapshot's source and session ID. A changed source or resolved identity returns exit code 1; a malformed snapshot, partial read, or unavailable source remains a non-success evidence state. A matching snapshot proves content identity at capture time, not ownership, liveness, or current repository state.
 
+Use `chatlens verify-bundle recovery.json --json` as the machine-readable identity diff: on a source change it exposes both `expected_events_sha256` and `current_events_sha256`. Re-capture safely with a new output path, for example `chatlens bundle codex:SESSION_ID --out recovery-2.json --json`; existing snapshot files are never overwritten.
+
 ### Trace envelopes
 
 `trace-export` turns one bounded session read into canonical JSONL: a redacted header
