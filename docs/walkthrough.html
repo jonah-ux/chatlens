@@ -58,6 +58,8 @@
     .foot { display: flex; justify-content: space-between; gap: 18px; margin-top: 26px; color: var(--muted); font-size: .9rem; }
     @media (max-width: 780px) { .hero, .two-col { grid-template-columns: 1fr; } .thread { grid-template-columns: 1fr; gap: 7px; } .badges { justify-content: start; } .panel { padding: 18px; } .foot { flex-direction: column; } }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
+
+    .hero-launch{margin-top:24px;padding:15px 16px;border:1px solid #b9a7ff44;border-radius:16px;background:linear-gradient(135deg,#1c2544cc,#0c1223cc);box-shadow:0 15px 45px #03050d66}.hero-launch-head{display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--accent);font:700 .7rem ui-monospace,monospace;letter-spacing:.11em;text-transform:uppercase}.launch-mark{color:var(--good)}.launch-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.launch-actions button{padding:8px 10px;font-size:.7rem}.launch-actions button[aria-pressed=true]{border-color:var(--cyan);color:var(--cyan);background:#163b4a}.launch-status{min-height:2.5em;margin:10px 0 0!important;font-size:.76rem!important}.journey-panel{display:grid;grid-template-columns:.85fr 1.15fr;gap:18px;align-items:center}.journey-copy p{margin:0;font-size:.84rem}.journey-rail{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.journey-step{position:relative;border:1px solid var(--line);border-radius:13px;padding:12px 10px;text-align:left;background:#0d1427aa;color:var(--muted);cursor:pointer;font:inherit}.journey-step::after{content:"";position:absolute;top:50%;right:-9px;width:10px;height:1px;background:#596584}.journey-step:last-child::after{display:none}.journey-step strong{display:block;color:var(--ink);font-size:.76rem}.journey-step small{display:block;margin-top:4px;font-size:.69rem}.journey-step[aria-current=true]{border-color:var(--cyan);background:#163b4a;color:var(--cyan);box-shadow:0 0 0 2px #76e4e81a}.journey-step[aria-current=true] strong{color:var(--cyan)}.bundle-line strong.mismatch{color:var(--danger)}.journey-panel .stamp{white-space:nowrap}@media(max-width:780px){.journey-panel{grid-template-columns:1fr}.journey-step::after{display:none}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
   </style>
 </head>
 <body>
@@ -68,6 +70,7 @@
         <h1 id="title">Find the lost thread. Keep the uncertainty.</h1>
         <p class="lede">ChatLens turns local Codex, Claude Code, and Hermes stores into searchable context, bounded work cards, and integrity-aware recovery artifacts. It is a tiny flashlight for agent archaeology.</p>
         <div class="chips"><span class="chip accent">fictional browser data</span><span class="chip">local only</span><span class="chip">no sibling checkout</span><span class="chip">claims ≠ proof</span></div>
+        <div class="hero-launch" aria-label="Launch the fictional recovery desk"><div class="hero-launch-head"><span>Launch a bounded investigation</span><span class="launch-mark">● READY</span></div><div class="launch-actions" role="group" aria-label="Recovery shortcuts"><button type="button" data-launch-stage="search" aria-pressed="true">01 find a thread</button><button type="button" data-launch-stage="bundle" aria-pressed="false">02 challenge bundle</button></div><p id="launch-status" class="launch-status" role="status" aria-live="polite">Search is local and illustrative. Try “parser” to light up one session.</p></div>
       </div>
       <svg viewBox="0 0 540 315" role="img" aria-labelledby="flow-title flow-desc">
         <title id="flow-title">ChatLens recovery flow</title><desc id="flow-desc">Codex, Claude, and Hermes stores flow into a searchable index, a bounded card, and a verified bundle.</desc>
@@ -76,6 +79,8 @@
         <g font-family="ui-monospace,monospace" text-anchor="middle"><rect x="24" y="44" width="108" height="56" rx="13" fill="#29244a"/><text x="78" y="78" fill="#f7f8ff" font-size="13">CODEX</text><rect x="24" y="130" width="108" height="56" rx="13" fill="#163f4a"/><text x="78" y="164" fill="#76e4e8" font-size="13">CLAUDE</text><rect x="24" y="216" width="108" height="56" rx="13" fill="#4a391d"/><text x="78" y="250" fill="#ffd580" font-size="13">HERMES</text><rect x="212" y="115" width="118" height="70" rx="15" fill="#202b4c"/><text x="271" y="147" fill="#f7f8ff" font-size="13">INDEX</text><text x="271" y="168" fill="#a9b0c9" font-size="10">coverage + freshness</text><rect x="390" y="80" width="126" height="70" rx="15" fill="#173d38"/><text x="453" y="112" fill="#8cf0ba" font-size="13">WORK CARD</text><text x="453" y="133" fill="#a9b0c9" font-size="10">claims / inputs</text><rect x="390" y="195" width="126" height="70" rx="15" fill="#3b315c"/><text x="453" y="227" fill="#b9a7ff" font-size="13">BUNDLE</text><text x="453" y="248" fill="#a9b0c9" font-size="10">match / mismatch</text></g>
       </svg>
     </section>
+
+    <section class="panel journey-panel" aria-labelledby="journey-title"><div class="journey-copy"><div class="eyebrow">Recovery desk / three stops</div><h2 id="journey-title">Follow the uncertainty.</h2><p id="journey-status" role="status" aria-live="polite">Start with a source-aware search; the next stop is a bounded work card.</p></div><div class="journey-rail" role="group" aria-label="Interactive recovery steps"><button class="journey-step" data-stage="search" aria-current="true"><strong>01 · Search</strong><small>source + freshness</small></button><button class="journey-step" data-stage="card" aria-current="false"><strong>02 · Bound</strong><small>claims stay historical</small></button><button class="journey-step" data-stage="bundle" aria-current="false"><strong>03 · Verify</strong><small>match or stop</small></button></div></section>
 
     <section class="panel" aria-labelledby="search-title">
       <div class="panel-head"><div><div class="eyebrow">01 / source-aware search</div><h2 id="search-title">Search the index without pretending it is live.</h2></div><div class="stamp">● INDEX REFRESHED 2M AGO</div></div>
@@ -129,27 +134,18 @@ python3 demos/demo.py</code><button class="copy" type="button" data-copy="git cl
     const rows = [...document.querySelectorAll('.thread')];
     const search = document.getElementById('thread-search');
     const status = document.getElementById('search-status');
-    function filterRows() {
-      const query = search.value.trim().toLowerCase();
-      const visible = rows.filter((row) => !query || row.dataset.search.includes(query));
-      rows.forEach((row) => { row.hidden = !visible.includes(row); });
-      status.textContent = `Showing ${visible.length} illustrative session${visible.length === 1 ? '' : 's'}.`;
-    }
+    const journeyStatus = document.getElementById('journey-status');
+    const launchStatus = document.getElementById('launch-status');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const stageCopy = {search:'Search is local and illustrative. Try “parser” to light up one session.',card:'The work card carries historical claims with their missing verification visible.',bundle:'A matching digest lets you continue cautiously; a mismatch is a stop sign.'};
+    function setStage(stage, focus = false) { document.querySelectorAll('[data-stage],[data-launch-stage]').forEach((button) => { const key = button.dataset.stage || button.dataset.launchStage; button.setAttribute('aria-current', String(key === stage)); button.setAttribute('aria-pressed', String(key === stage)); }); journeyStatus.textContent = stageCopy[stage]; launchStatus.textContent = stageCopy[stage]; if (focus) { const target = stage === 'search' ? document.getElementById('search-title') : stage === 'card' ? document.getElementById('card-title') : document.getElementById('bundle-title'); target.scrollIntoView({behavior:reduceMotion ? 'auto' : 'smooth',block:'start'}); } }
+    function filterRows() { const query = search.value.trim().toLowerCase(); const visible = rows.filter((row) => !query || row.dataset.search.includes(query)); rows.forEach((row) => { row.hidden = !visible.includes(row); }); status.textContent = `Showing ${visible.length} illustrative session${visible.length === 1 ? '' : 's'}.`; setStage('search'); }
     search.addEventListener('input', filterRows);
     document.getElementById('clear-search').addEventListener('click', () => { search.value = ''; filterRows(); search.focus(); });
-    document.getElementById('bundle-state').addEventListener('change', (event) => {
-      const mismatch = event.target.value === 'mismatch';
-      const state = document.getElementById('source-state');
-      const digest = document.getElementById('snapshot-digest');
-      state.textContent = mismatch ? 'mismatch · stop and re-read' : 'matched · continue with caution';
-      state.classList.toggle('mismatch', mismatch);
-      digest.textContent = mismatch ? 'a91f…20e4 ≠ 4c72…9bd1' : 'a91f…20e4';
-    });
-    document.querySelectorAll('[data-copy]').forEach((button) => button.addEventListener('click', async () => {
-      const statusNode = button.closest('.panel').querySelector('[role="status"]');
-      try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = 'copied'; statusNode.textContent = 'Command copied. The context goblin stays in its lane.'; }
-      catch { statusNode.textContent = 'Copy was unavailable; select the command manually.'; }
-    }));
-  </script>
+    document.getElementById('bundle-state').addEventListener('change', (event) => { const mismatch = event.target.value === 'mismatch'; const state = document.getElementById('source-state'); const digest = document.getElementById('snapshot-digest'); state.textContent = mismatch ? 'mismatch · stop and re-read' : 'matched · continue with caution'; state.classList.toggle('mismatch', mismatch); digest.textContent = mismatch ? 'a91f…20e4 ≠ 4c72…9bd1' : 'a91f…20e4'; setStage('bundle'); });
+    document.querySelectorAll('[data-stage]').forEach((button) => button.addEventListener('click', () => setStage(button.dataset.stage, true)));
+    document.querySelectorAll('[data-launch-stage]').forEach((button) => button.addEventListener('click', () => setStage(button.dataset.launchStage, true)));
+    document.querySelectorAll('[data-copy]').forEach((button) => button.addEventListener('click', async () => { const statusNode = button.closest('.panel').querySelector('[role="status"]'); try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = 'copied'; statusNode.textContent = 'Command copied. The context goblin stays in its lane.'; } catch { statusNode.textContent = 'Copy was unavailable; select the command manually.'; } }));
+</script>
 </body>
 </html>
