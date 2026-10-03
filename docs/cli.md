@@ -1,6 +1,6 @@
 # CLI reference — 0.4.0
 
-The executable is `chatlens`; `python -m chatlens` exposes the same interface. `--help` prints usage, and `--version` prints the package version. Commands are noninteractive and local.
+The executable is `chatlens`; `python3 -m chatlens` exposes the same interface. `--help` prints usage, and `--version` prints the package version. Commands are noninteractive and local.
 
 | Command | Arguments | Result |
 | --- | --- | --- |

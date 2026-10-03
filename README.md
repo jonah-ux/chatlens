@@ -204,8 +204,8 @@ Reads are bounded to 64 MiB for each JSONL file, 200,000 events, and 1,000,000 r
 The checked-in `chatlens-public-audit/v1` receipt makes the public release surface inspectable:
 
 ```console
-python scripts/audit_public_surface.py --json
-python scripts/audit_public_surface.py --dist-dir ./dist --json
+python3 scripts/audit_public_surface.py --json
+python3 scripts/audit_public_surface.py --dist-dir ./dist --json
 ```
 
 It inventories declared build/runtime dependencies, checks the MIT license and annotated-tag
