@@ -1,0 +1,14 @@
+{
+  "schema": "chatlens-lab-conformance/v1",
+  "owner": "chatlens",
+  "repository": "https://github.com/jonah-ux/chatlens",
+  "native_schemas": ["ai-work-evidence/v1", "chatlens-trace-envelope/v1"],
+  "capabilities": ["trace.export", "trace.import", "work.evidence"],
+  "tests": ["tests/test_conformance.py"],
+  "consumer_manifest": "tests/fixtures/agent-systems-lab/conformance.json",
+  "negative_cases": ["partial-not-observed", "tampered-envelope", "unknown-schema", "unsafe-artifact", "bad-hash", "malformed-root"],
+  "limits": [
+    "source-level declarations; producer behavior is exercised separately by the referenced tests",
+    "no private transcript read, shared runtime dependency, deployment, or outside adoption is established"
+  ]
+}

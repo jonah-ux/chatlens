@@ -218,6 +218,11 @@ production readiness.
 
 ## Contribute
 
+The source-level [owner conformance manifest](conformance/agent-systems-lab.json) declares
+ChatLens's native trace/evidence schemas and capability names. The conformance test compares those
+declarations with synthetic trace and evidence producer output. New source archives include this
+manifest for explicit compatibility checking; already published releases keep their original bytes.
+
 ```console
 python3 -m pip install -e .
 python3 -m unittest discover -s tests -v

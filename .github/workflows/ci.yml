@@ -29,6 +29,18 @@ jobs:
         run: |
           python -m pip install build
           python -m build --sdist --wheel
+      - name: Verify source conformance resource
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import tarfile
+          relative = "conformance/agent-systems-lab.json"
+          with tarfile.open(next(Path("dist").glob("*.tar.gz"))) as archive:
+              members = [member for member in archive.getmembers() if member.name.split("/", 1)[-1] == relative]
+              assert len(members) == 1 and members[0].isfile(), "owner manifest missing or duplicated"
+              assert archive.extractfile(members[0]).read() == Path(relative).read_bytes(), "owner manifest bytes changed"
+          print("Source distribution contains the exact owner conformance manifest")
+          PY
       - name: Install wheel and verify CLI
         run: |
           python -m pip install --no-deps dist/*.whl
