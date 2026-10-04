@@ -14,6 +14,20 @@ def make_trace(partial=False):
 
 
 class ConsumerConformanceTest(unittest.TestCase):
+    def test_owner_manifest_matches_producer_schema_boundaries(self):
+        path = Path(__file__).parents[1] / "conformance" / "agent-systems-lab.json"
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        trace = make_trace()
+        evidence = build_work_evidence(
+            trace, evidence_id="fixture:owner-manifest", subject="Synthetic", summary="Producer boundary",
+            created_at="2026-01-01T00:00:00Z", fixture_id="agent-systems-lab",
+        )
+        self.assertEqual(manifest["owner"], "chatlens")
+        self.assertCountEqual(manifest["native_schemas"], [trace["header"]["schema"], evidence["schema"]])
+        for test_path in manifest["tests"]:
+            self.assertTrue((Path(__file__).parents[1] / test_path).is_file())
+        self.assertTrue((Path(__file__).parents[1] / manifest["consumer_manifest"]).is_file())
+
     @staticmethod
     def manifest():
         path = Path(__file__).parent / "fixtures" / "agent-systems-lab" / "conformance.json"
